@@ -11,6 +11,9 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+
+const TZ = "Asia/Singapore";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/permissions";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
@@ -131,24 +134,133 @@ async function MonthView({ cursor }: { cursor: Date }) {
   const days: Date[] = [];
   for (let d = gridStart; d <= gridEnd; d = addDays(d, 1)) days.push(d);
 
+  // Build per-day item lists (shared by both views)
+  type Item = { id: string; sort: number; node: React.ReactNode; mobileNode: React.ReactNode };
+
+  const itemsByDay = new Map<string, Item[]>();
+  for (const day of days) {
+    const key = day.toISOString();
+    const dayEvents = events.filter((e) => isSameDay(e.startAt, day));
+    const dayPayments = payments.filter((p) => p.dueDate && isSameDay(p.dueDate, day));
+
+    const items: Item[] = [
+      ...dayEvents.map<Item>((e) => {
+        const assignees = e.assignments.map((a) => a.user);
+        const assigneeNames = assignees.map((u) => u.name).join(", ");
+        const timeStr = formatInTimeZone(e.startAt, TZ, "h:mma");
+        return {
+          id: `e-${e.id}`,
+          sort: e.startAt.getTime(),
+          node: (
+            <Link
+              href={`/calendar/${e.id}`}
+              className="group block rounded bg-brand-100 px-1 py-0.5 text-brand-700 hover:bg-brand-500 hover:text-white"
+              title={`${e.title} — ${formatDateTime(e.startAt)}${assigneeNames ? ` · ${assigneeNames}` : ""}`}
+            >
+              <div className="truncate">{timeStr} {e.title}</div>
+              {assignees.length > 0 && (
+                <div className="mt-0.5 flex flex-wrap gap-0.5">
+                  {assignees.map((u) => (
+                    <span key={u.id} className="rounded bg-brand-200 px-0.5 text-[9px] font-semibold leading-tight group-hover:bg-brand-600 group-hover:text-white">
+                      {u.name.slice(0, 3).toUpperCase()}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Link>
+          ),
+          mobileNode: (
+            <Link href={`/calendar/${e.id}`} className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+              <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-brand-500 mt-1.5" />
+              <div className="min-w-0">
+                <div className="font-medium text-stone-900 truncate">{e.title}</div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  {timeStr}{e.client ? ` · ${e.client.name}` : ""}{assigneeNames ? ` · ${assigneeNames}` : ""}
+                </div>
+              </div>
+            </Link>
+          ),
+        };
+      }),
+      ...dayPayments.map<Item>((p) => {
+        const visual: PaymentVisualStatus =
+          p.status === "PAID" ? "PAID" : p.dueDate && p.dueDate < now ? "OVERDUE" : "PENDING";
+        const paymentColorDot = visual === "PAID" ? "bg-green-500" : visual === "OVERDUE" ? "bg-red-500" : "bg-amber-500";
+        return {
+          id: `p-${p.id}`,
+          sort: Number.MAX_SAFE_INTEGER - (5 - p.stage),
+          node: (
+            <Link
+              href={`/contracts/${p.contractId}`}
+              className={`block truncate rounded px-1 py-0.5 ${PAYMENT_STYLE[visual]}`}
+              title={`${p.contract.title} · Stage ${p.stage} ${p.label} — ${formatMoney(p.amount)} due ${formatDate(p.dueDate)} (${visual})`}
+            >
+              $ {p.contract.client.name} · Stage {p.stage}
+            </Link>
+          ),
+          mobileNode: (
+            <Link href={`/contracts/${p.contractId}`} className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+              <div className={`shrink-0 h-2 w-2 rounded-full mt-1.5 ${paymentColorDot}`} />
+              <div className="min-w-0">
+                <div className="font-medium text-stone-900 truncate">
+                  {p.contract.client.name} · Stage {p.stage} {p.label}
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  {formatMoney(p.amount)} · {p.contract.title}
+                  <span className={`ml-2 inline-block rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                    visual === "PAID" ? "bg-green-100 text-green-800" : visual === "OVERDUE" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"
+                  }`}>{visual}</span>
+                </div>
+              </div>
+            </Link>
+          ),
+        };
+      }),
+    ].sort((a, b) => a.sort - b.sort);
+
+    itemsByDay.set(key, items);
+  }
+
+  // Days in current month that have at least one item (for agenda view)
+  const agendaDays = days.filter(
+    (d) => isSameMonth(d, cursor) && (itemsByDay.get(d.toISOString())?.length ?? 0) > 0
+  );
+
   return (
     <>
+      {/* Legend */}
       <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-slate-600">
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-brand-500" /> Event
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-green-500" /> Payment · Paid
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-500" /> Payment · Pending
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" /> Payment · Overdue
-        </span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-brand-500" /> Event</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-green-500" /> Payment · Paid</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-500" /> Payment · Pending</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" /> Payment · Overdue</span>
       </div>
 
-      <div className="card overflow-hidden">
+      {/* Agenda view — mobile only */}
+      <div className="md:hidden card divide-y divide-slate-100 overflow-hidden">
+        {agendaDays.length === 0 ? (
+          <p className="p-6 text-sm text-slate-500">No events or payments this month.</p>
+        ) : (
+          agendaDays.map((day) => {
+            const items = itemsByDay.get(day.toISOString()) ?? [];
+            const isToday = isSameDay(day, new Date());
+            return (
+              <div key={day.toISOString()} className="px-4 py-3">
+                <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isToday ? "text-brand-600" : "text-slate-400"}`}>
+                  {formatInTimeZone(day, TZ, "EEE, MMM d")}
+                  {isToday && <span className="ml-2 text-[10px] bg-brand-600 text-white rounded-full px-1.5 py-0.5">Today</span>}
+                </div>
+                {items.map((item) => (
+                  <div key={item.id}>{item.mobileNode}</div>
+                ))}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Grid view — desktop only */}
+      <div className="hidden md:block card overflow-hidden">
         <div className="grid grid-cols-7 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
             <div key={d} className="px-2 py-2 text-center">{d}</div>
@@ -156,69 +268,12 @@ async function MonthView({ cursor }: { cursor: Date }) {
         </div>
         <div className="grid grid-cols-7">
           {days.map((day) => {
-            const dayEvents = events.filter((e) => isSameDay(e.startAt, day));
-            const dayPayments = payments.filter((p) => p.dueDate && isSameDay(p.dueDate, day));
+            const items = itemsByDay.get(day.toISOString()) ?? [];
             const inMonth = isSameMonth(day, cursor);
             const isToday = isSameDay(day, new Date());
-
-            type Item = { id: string; sort: number; node: React.ReactNode };
-            const items: Item[] = [
-              ...dayEvents.map<Item>((e) => {
-                const assignees = e.assignments.map((a) => a.user);
-                const assigneeNames = assignees.map((u) => u.name).join(", ");
-                return {
-                  id: `e-${e.id}`,
-                  sort: e.startAt.getTime(),
-                  node: (
-                    <Link
-                      href={`/calendar/${e.id}`}
-                      className="group block rounded bg-brand-100 px-1 py-0.5 text-brand-700 hover:bg-brand-500 hover:text-white"
-                      title={`${e.title} — ${formatDateTime(e.startAt)}${assigneeNames ? ` · ${assigneeNames}` : ""}`}
-                    >
-                      <div className="truncate">{format(e.startAt, "h:mma")} {e.title}</div>
-                      {assignees.length > 0 && (
-                        <div className="mt-0.5 flex flex-wrap gap-0.5">
-                          {assignees.map((u) => (
-                            <span
-                              key={u.id}
-                              className="rounded bg-brand-200 px-0.5 text-[9px] font-semibold leading-tight group-hover:bg-brand-600 group-hover:text-white"
-                            >
-                              {u.name.slice(0, 3).toUpperCase()}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </Link>
-                  ),
-                };
-              }),
-              ...dayPayments.map<Item>((p) => {
-                const visual: PaymentVisualStatus =
-                  p.status === "PAID"
-                    ? "PAID"
-                    : p.dueDate && p.dueDate < now
-                      ? "OVERDUE"
-                      : "PENDING";
-                return {
-                  id: `p-${p.id}`,
-                  sort: Number.MAX_SAFE_INTEGER - (5 - p.stage),
-                  node: (
-                    <Link
-                      href={`/contracts/${p.contractId}`}
-                      className={`block truncate rounded px-1 py-0.5 ${PAYMENT_STYLE[visual]}`}
-                      title={`${p.contract.title} · Stage ${p.stage} ${p.label} — ${formatMoney(p.amount)} due ${formatDate(p.dueDate)} (${visual})`}
-                    >
-                      $ {p.contract.client.name} · Stage {p.stage}
-                    </Link>
-                  ),
-                };
-              }),
-            ].sort((a, b) => a.sort - b.sort);
-
             const MAX = 4;
             const shown = items.slice(0, MAX);
             const extra = items.length - shown.length;
-
             return (
               <div
                 key={day.toISOString()}
@@ -226,8 +281,8 @@ async function MonthView({ cursor }: { cursor: Date }) {
                   inMonth ? "bg-white" : "bg-slate-50 text-slate-400"
                 }`}
               >
-                <div className={`mb-1 flex justify-between ${isToday ? "font-semibold text-brand-700" : ""}`}>
-                  <span>{format(day, "d")}</span>
+                <div className={`mb-1 ${isToday ? "font-semibold text-brand-700" : ""}`}>
+                  {format(day, "d")}
                 </div>
                 <ul className="space-y-1">
                   {shown.map((item) => (
