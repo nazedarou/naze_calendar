@@ -14,7 +14,7 @@ function ProfileIcon() {
 
 export function Sidebar({ user }: { user: SessionUser }) {
   return (
-    <aside className="w-56 flex-shrink-0 flex flex-col bg-[#17120E] border-r border-[#251F18]">
+    <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-[#17120E] border-r border-[#251F18]">
       {/* Logo */}
       <div className="px-6 pt-7 pb-6 border-b border-[#251F18]">
         <Link href="/" className="block">
