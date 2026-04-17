@@ -15,7 +15,7 @@ export default async function NewContractPage({ searchParams }: Props) {
     prisma.user.findMany({
       where: { active: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true },
     }),
   ]);
 

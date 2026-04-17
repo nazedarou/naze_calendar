@@ -24,7 +24,7 @@ export function ContractForm({
   action: (formData: FormData) => void | Promise<void>;
   initial?: Initial;
   clients: { id: string; name: string }[];
-  employees: { id: string; name: string; email: string }[];
+  employees: { id: string; name: string }[];
   submitLabel: string;
   defaultClientId?: string;
   readOnly?: boolean;
@@ -154,9 +154,7 @@ export function ContractForm({
         ) : readOnly ? (
           <div className="grid gap-2 sm:grid-cols-2">
             {employees.filter((e) => assigned.has(e.id)).map((e) => (
-              <span key={e.id} className="text-sm text-slate-600">
-                {e.name} <span className="text-xs text-slate-500">({e.email})</span>
-              </span>
+              <span key={e.id} className="text-sm text-slate-600">{e.name}</span>
             ))}
             {assigned.size === 0 && <p className="text-xs text-slate-500">None assigned.</p>}
           </div>
@@ -170,7 +168,7 @@ export function ContractForm({
                   value={e.id}
                   defaultChecked={assigned.has(e.id)}
                 />
-                <span>{e.name} <span className="text-xs text-slate-500">({e.email})</span></span>
+                <span>{e.name}</span>
               </label>
             ))}
           </div>

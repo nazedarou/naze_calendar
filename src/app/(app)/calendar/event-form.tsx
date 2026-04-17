@@ -26,7 +26,7 @@ export function EventForm({
   initial?: Initial;
   clients: { id: string; name: string }[];
   contracts: { id: string; title: string; clientId: string }[];
-  employees: { id: string; name: string; email: string }[];
+  employees: { id: string; name: string }[];
   submitLabel: string;
   defaultClientId?: string;
   defaultContractId?: string;
@@ -112,7 +112,6 @@ export function EventForm({
                   <span>
                     {e.name}
                     {locked && <span className="ml-1 text-xs text-brand-600">(you)</span>}
-                    {" "}<span className="text-xs text-slate-500">({e.email})</span>
                   </span>
                 </label>
               );
