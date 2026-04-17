@@ -1,15 +1,17 @@
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+
+const TZ = "Asia/Singapore";
 
 export function formatDate(d: Date | string | null | undefined) {
   if (!d) return "—";
   const date = typeof d === "string" ? new Date(d) : d;
-  return format(date, "MMM d, yyyy");
+  return formatInTimeZone(date, TZ, "MMM d, yyyy");
 }
 
 export function formatDateTime(d: Date | string | null | undefined) {
   if (!d) return "—";
   const date = typeof d === "string" ? new Date(d) : d;
-  return format(date, "MMM d, yyyy h:mm a");
+  return formatInTimeZone(date, TZ, "MMM d, yyyy h:mm a");
 }
 
 export function formatMoney(amount: unknown, currency = "USD") {
@@ -24,11 +26,11 @@ export function formatMoney(amount: unknown, currency = "USD") {
 export function toDateInputValue(d: Date | string | null | undefined) {
   if (!d) return "";
   const date = typeof d === "string" ? new Date(d) : d;
-  return format(date, "yyyy-MM-dd");
+  return formatInTimeZone(date, TZ, "yyyy-MM-dd");
 }
 
 export function toDateTimeInputValue(d: Date | string | null | undefined) {
   if (!d) return "";
   const date = typeof d === "string" ? new Date(d) : d;
-  return format(date, "yyyy-MM-dd'T'HH:mm");
+  return formatInTimeZone(date, TZ, "yyyy-MM-dd'T'HH:mm");
 }

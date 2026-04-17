@@ -63,8 +63,8 @@ export async function syncEventToGoogle(eventId: string) {
     description: [event.description, event.client ? `Client: ${event.client.name}` : ""]
       .filter(Boolean).join("\n"),
     location: event.location ?? undefined,
-    start: { dateTime: event.startAt.toISOString() },
-    end: { dateTime: end.toISOString() },
+    start: { dateTime: event.startAt.toISOString(), timeZone: "Asia/Singapore" },
+    end: { dateTime: end.toISOString(), timeZone: "Asia/Singapore" },
   };
 
   // Sync to assigned employees

@@ -3,16 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { fromZonedTime } from "date-fns-tz";
 
 import { prisma } from "@/lib/db";
 import { requireOwner, requireUser } from "@/lib/permissions";
 import { syncEventToGoogle, deleteEventFromGoogle } from "@/lib/google-calendar";
 
+const TZ = "Asia/Singapore";
+
 const eventSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().max(2000).optional(),
   location: z.string().max(200).optional(),
-  startAt: z.coerce.date(),
+  startAt: z.string().transform((s) => fromZonedTime(s, TZ)),
   clientId: z.string().optional(),
   contractId: z.string().optional(),
   assignedUserIds: z.array(z.string()).default([]),
