@@ -16,7 +16,7 @@ import { requireUser } from "@/lib/permissions";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 
 type Props = {
-  searchParams: Promise<{ month?: string; view?: string; emp?: string }>;
+  searchParams: Promise<{ month?: string; view?: string; q?: string }>;
 };
 
 function parseMonth(raw: string | undefined): Date {
@@ -44,11 +44,10 @@ const CONTRACT_STATUS_STYLE: Record<string, string> = {
 export default async function CalendarPage({ searchParams }: Props) {
   const user = await requireUser();
   const isOwner = user.role === "OWNER";
-  const { month, view, emp } = await searchParams;
+  const { month, view, q } = await searchParams;
   const activeView = isOwner && view === "employees" ? "employees" : "month";
   const cursor = parseMonth(month);
   const monthParam = format(cursor, "yyyy-MM");
-  const empIndex = Math.max(0, parseInt(emp ?? "0") || 0);
 
   return (
     <div>
@@ -85,7 +84,7 @@ export default async function CalendarPage({ searchParams }: Props) {
       {activeView === "month" ? (
         <MonthView cursor={cursor} />
       ) : (
-        <EmployeesView cursor={cursor} empIndex={empIndex} monthParam={monthParam} />
+        <EmployeesView cursor={cursor} monthParam={monthParam} q={q} />
       )}
     </div>
   );
@@ -247,33 +246,24 @@ async function MonthView({ cursor }: { cursor: Date }) {
   );
 }
 
+const MAX_PREVIEW = 3;
+
 async function EmployeesView({
   cursor,
-  empIndex,
   monthParam,
+  q,
 }: {
   cursor: Date;
-  empIndex: number;
   monthParam: string;
+  q?: string;
 }) {
   const monthStart = startOfMonth(cursor);
   const monthEnd = endOfMonth(cursor);
+  const search = q?.trim().toLowerCase() ?? "";
 
-  const allEmployees = await prisma.user.findMany({
+  const employees = await prisma.user.findMany({
     where: { active: true },
     orderBy: [{ role: "asc" }, { name: "asc" }],
-    select: { id: true, name: true, role: true },
-  });
-
-  if (allEmployees.length === 0) {
-    return <div className="card p-6 text-sm text-slate-500">No employees yet.</div>;
-  }
-
-  const clampedIndex = Math.min(empIndex, allEmployees.length - 1);
-  const empMeta = allEmployees[clampedIndex]!;
-
-  const emp = await prisma.user.findUnique({
-    where: { id: empMeta.id },
     select: {
       id: true,
       name: true,
@@ -293,112 +283,153 @@ async function EmployeesView({
     },
   });
 
-  if (!emp) return null;
+  const filtered = search
+    ? employees.filter((e) => e.name.toLowerCase().includes(search))
+    : employees;
 
   const now = new Date();
-  const events = emp.eventAssignments
-    .map((a) => a.event)
-    .sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
-  const contracts = emp.contractAssignments.map((a) => a.contract);
-
-  const prevIndex = clampedIndex - 1;
-  const nextIndex = clampedIndex + 1;
-  const baseUrl = `/calendar?view=employees&month=${monthParam}`;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
-          {format(cursor, "MMMM yyyy")} · {events.length} event{events.length === 1 ? "" : "s"} · {contracts.length} contract{contracts.length === 1 ? "" : "s"}
-        </p>
-        <div className="flex items-center gap-2 text-sm">
-          {prevIndex >= 0 ? (
-            <Link href={`${baseUrl}&emp=${prevIndex}`} className="btn-secondary">← {allEmployees[prevIndex]!.name}</Link>
-          ) : (
-            <span className="btn-secondary opacity-40 pointer-events-none">← Prev</span>
-          )}
-          <span className="text-slate-500 tabular-nums">{clampedIndex + 1} / {allEmployees.length}</span>
-          {nextIndex < allEmployees.length ? (
-            <Link href={`${baseUrl}&emp=${nextIndex}`} className="btn-secondary">{allEmployees[nextIndex]!.name} →</Link>
-          ) : (
-            <span className="btn-secondary opacity-40 pointer-events-none">Next →</span>
-          )}
+      <form method="get" action="/calendar" className="flex items-center gap-2">
+        <input type="hidden" name="view" value="employees" />
+        <input type="hidden" name="month" value={monthParam} />
+        <div className="relative flex-1 max-w-xs">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+          </svg>
+          <input
+            name="q"
+            defaultValue={q ?? ""}
+            placeholder="Search staff…"
+            className="input pl-9 text-sm"
+          />
         </div>
-      </div>
+        {q && (
+          <Link href={`/calendar?view=employees&month=${monthParam}`} className="text-sm text-slate-500 hover:text-slate-700 underline">
+            Clear
+          </Link>
+        )}
+      </form>
 
-      <section className="card p-5">
-        <header className="flex items-center gap-3 mb-5">
-          <div className="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-sm">
-            {emp.name.slice(0, 2).toUpperCase()}
-          </div>
-          <div>
-            <h2 className="font-semibold text-lg leading-tight">
-              {emp.name}
-              <span className="badge bg-brand-100 text-brand-700 ml-2 text-xs">{emp.role}</span>
-            </h2>
-          </div>
-        </header>
+      {filtered.length === 0 ? (
+        <div className="card p-6 text-sm text-slate-500">
+          {search ? `No staff matching "${q}".` : "No employees yet."}
+        </div>
+      ) : (
+        filtered.map((emp) => {
+          const events = emp.eventAssignments
+            .map((a) => a.event)
+            .sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
+          const contracts = emp.contractAssignments.map((a) => a.contract);
+          const extraEvents = events.length - MAX_PREVIEW;
+          const extraContracts = contracts.length - MAX_PREVIEW;
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <h3 className="text-xs uppercase tracking-wide text-slate-500 mb-3">Events this month</h3>
-            {events.length === 0 ? (
-              <p className="text-sm text-slate-500">No assigned events.</p>
-            ) : (
-              <ul className="divide-y divide-slate-200 text-sm">
-                {events.map((e) => (
-                  <li key={e.id} className="py-2">
-                    <Link href={`/calendar/${e.id}`} className="font-medium text-brand-700 hover:underline">
-                      {e.title}
-                    </Link>
-                    <div className="text-xs text-slate-500">
-                      {formatDateTime(e.startAt)}
-                      {e.client ? ` · ${e.client.name}` : ""}
-                      {e.contract ? ` · ${e.contract.title}` : ""}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          return (
+            <section key={emp.id} className="card p-5">
+              <header className="flex items-center justify-between mb-4">
+                <div>
+                  <Link
+                    href={`/calendar/employees/${emp.id}?month=${monthParam}`}
+                    className="font-semibold text-brand-700 hover:underline"
+                  >
+                    {emp.name}
+                  </Link>{" "}
+                  <span className="badge bg-brand-100 text-brand-700 ml-1">{emp.role}</span>
+                </div>
+                <div className="text-xs text-slate-500">
+                  {events.length} event{events.length === 1 ? "" : "s"} ·{" "}
+                  {contracts.length} contract{contracts.length === 1 ? "" : "s"}
+                </div>
+              </header>
 
-          <div>
-            <h3 className="text-xs uppercase tracking-wide text-slate-500 mb-3">Active contracts</h3>
-            {contracts.length === 0 ? (
-              <p className="text-sm text-slate-500">No assigned contracts.</p>
-            ) : (
-              <ul className="divide-y divide-slate-200 text-sm">
-                {contracts.map((c) => {
-                  const nextDue = c.payments.find((p) => p.status !== "PAID");
-                  const overdue =
-                    nextDue && nextDue.dueDate && nextDue.dueDate < now ? "OVERDUE" : nextDue?.status;
-                  return (
-                    <li key={c.id} className="py-2 flex items-start justify-between gap-3">
-                      <div>
-                        <Link href={`/contracts/${c.id}`} className="font-medium text-brand-700 hover:underline">
-                          {c.title}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+                    Events this month
+                  </h3>
+                  {events.length === 0 ? (
+                    <p className="text-sm text-slate-500">No assigned events.</p>
+                  ) : (
+                    <>
+                      <ul className="divide-y divide-slate-200 text-sm">
+                        {events.slice(0, MAX_PREVIEW).map((e) => (
+                          <li key={e.id} className="py-2">
+                            <Link href={`/calendar/${e.id}`} className="font-medium text-brand-700 hover:underline">
+                              {e.title}
+                            </Link>
+                            <div className="text-xs text-slate-500">
+                              {formatDateTime(e.startAt)}
+                              {e.client ? ` · ${e.client.name}` : ""}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      {extraEvents > 0 && (
+                        <Link
+                          href={`/calendar/employees/${emp.id}?month=${monthParam}`}
+                          className="mt-1 block text-xs text-brand-600 hover:underline"
+                        >
+                          +{extraEvents} more — view all
                         </Link>
-                        <div className="text-xs text-slate-500">
-                          {c.client.name} · {formatMoney(c.totalAmount)}
-                          {nextDue ? ` · next: Stage ${nextDue.stage} ${formatDate(nextDue.dueDate)}` : " · all paid"}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-slate-100"}`}>
-                          {c.status}
-                        </span>
-                        {overdue === "OVERDUE" && (
-                          <span className="badge bg-red-100 text-red-700">OVERDUE</span>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-        </div>
-      </section>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+                    Active contracts
+                  </h3>
+                  {contracts.length === 0 ? (
+                    <p className="text-sm text-slate-500">No assigned contracts.</p>
+                  ) : (
+                    <>
+                      <ul className="divide-y divide-slate-200 text-sm">
+                        {contracts.slice(0, MAX_PREVIEW).map((c) => {
+                          const nextDue = c.payments.find((p) => p.status !== "PAID");
+                          const overdue =
+                            nextDue && nextDue.dueDate && nextDue.dueDate < now
+                              ? "OVERDUE"
+                              : nextDue?.status;
+                          return (
+                            <li key={c.id} className="py-2 flex items-start justify-between gap-3">
+                              <div>
+                                <Link href={`/contracts/${c.id}`} className="font-medium text-brand-700 hover:underline">
+                                  {c.title}
+                                </Link>
+                                <div className="text-xs text-slate-500">
+                                  {c.client.name} · {formatMoney(c.totalAmount)}
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-slate-100"}`}>
+                                  {c.status}
+                                </span>
+                                {overdue === "OVERDUE" && (
+                                  <span className="badge bg-red-100 text-red-700">OVERDUE</span>
+                                )}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {extraContracts > 0 && (
+                        <Link
+                          href={`/calendar/employees/${emp.id}?month=${monthParam}&contracts=all`}
+                          className="mt-1 block text-xs text-brand-600 hover:underline"
+                        >
+                          +{extraContracts} more — view all
+                        </Link>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </section>
+          );
+        })
+      )}
     </div>
   );
 }
