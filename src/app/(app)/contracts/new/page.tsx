@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/permissions";
+import { requireOwner } from "@/lib/permissions";
 import { ContractForm } from "../contract-form";
 import { createContract } from "../actions";
 
 type Props = { searchParams: Promise<{ clientId?: string }> };
 
 export default async function NewContractPage({ searchParams }: Props) {
-  await requireUser();
+  await requireOwner();
   const { clientId } = await searchParams;
 
   const [clients, employees] = await Promise.all([

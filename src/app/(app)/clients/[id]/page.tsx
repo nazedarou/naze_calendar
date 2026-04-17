@@ -60,9 +60,11 @@ export default async function ClientDetailPage({ params }: Props) {
           <div className="card p-6">
             <div className="flex justify-between mb-4">
               <h2 className="text-lg font-semibold">Contracts</h2>
-              <Link href={`/contracts/new?clientId=${client.id}`} className="btn-secondary">
-                + New contract
-              </Link>
+              {isOwner(user) && (
+                <Link href={`/contracts/new?clientId=${client.id}`} className="btn-secondary">
+                  + New contract
+                </Link>
+              )}
             </div>
             {client.contracts.length === 0 ? (
               <p className="text-sm text-slate-500">No contracts yet.</p>

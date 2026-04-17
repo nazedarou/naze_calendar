@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/permissions";
+import { isOwner, requireUser } from "@/lib/permissions";
 import { formatDate, formatMoney } from "@/lib/format";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -11,7 +11,8 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 export default async function ContractsPage() {
-  await requireUser();
+  const user = await requireUser();
+  const canEdit = isOwner(user);
   const contracts = await prisma.contract.findMany({
     orderBy: { startDate: "desc" },
     include: {
@@ -27,12 +28,18 @@ export default async function ContractsPage() {
           <h1 className="text-2xl font-semibold">Contracts</h1>
           <p className="text-sm text-slate-500">All contracts and their payment progress</p>
         </div>
-        <Link href="/contracts/new" className="btn-primary">+ New contract</Link>
+        {canEdit && (
+          <Link href="/contracts/new" className="btn-primary">+ New contract</Link>
+        )}
       </div>
 
       {contracts.length === 0 ? (
         <div className="card p-8 text-center text-slate-500">
-          No contracts yet. <Link href="/contracts/new" className="text-brand-600 underline">Create one</Link>.
+          {canEdit ? (
+            <>No contracts yet. <Link href="/contracts/new" className="text-brand-600 underline">Create one</Link>.</>
+          ) : (
+            "No contracts yet."
+          )}
         </div>
       ) : (
         <div className="space-y-3">

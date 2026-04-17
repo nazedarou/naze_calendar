@@ -14,8 +14,16 @@ const STATUS_BADGE: Record<string, string> = {
   OVERDUE: "bg-red-100 text-red-700",
 };
 
+const CONTRACT_STATUS_BADGE: Record<string, string> = {
+  DRAFT: "bg-slate-200 text-slate-700",
+  ACTIVE: "bg-green-100 text-green-800",
+  COMPLETED: "bg-blue-100 text-blue-800",
+  CANCELLED: "bg-red-100 text-red-700",
+};
+
 export default async function ContractDetailPage({ params }: Props) {
   const user = await requireUser();
+  const canEdit = isOwner(user);
   const { id } = await params;
 
   const [contract, clients, employees] = await Promise.all([
@@ -79,16 +87,18 @@ export default async function ContractDetailPage({ params }: Props) {
                     {formatMoney(p.amount, contract.currency)}
                   </div>
                   <span className={`badge ${STATUS_BADGE[status]}`}>{status}</span>
-                  <form action={togglePayment.bind(null, p.id)}>
-                    <input
-                      type="hidden"
-                      name="paid"
-                      value={p.status === "PAID" ? "false" : "true"}
-                    />
-                    <button type="submit" className="btn-secondary text-xs">
-                      {p.status === "PAID" ? "Mark unpaid" : "Mark paid"}
-                    </button>
-                  </form>
+                  {canEdit && (
+                    <form action={togglePayment.bind(null, p.id)}>
+                      <input
+                        type="hidden"
+                        name="paid"
+                        value={p.status === "PAID" ? "false" : "true"}
+                      />
+                      <button type="submit" className="btn-secondary text-xs">
+                        {p.status === "PAID" ? "Mark unpaid" : "Mark paid"}
+                      </button>
+                    </form>
+                  )}
                 </div>
               </li>
             );
@@ -96,39 +106,82 @@ export default async function ContractDetailPage({ params }: Props) {
         </ul>
       </div>
 
-      <div className="card p-6">
-        <h2 className="text-lg font-semibold mb-4">Edit contract</h2>
-        <ContractForm
-          action={updateContract.bind(null, contract.id)}
-          initial={{
-            clientId: contract.clientId,
-            title: contract.title,
-            description: contract.description,
-            totalAmount: Number(contract.totalAmount),
-            currency: contract.currency,
-            status: contract.status,
-            startDate: contract.startDate,
-            endDate: contract.endDate,
-            assignedUserIds: contract.assignments.map((a) => a.userId),
-            milestones: contract.payments.map((p) => ({
-              label: p.label,
-              amount: Number(p.amount),
-              dueDate: p.dueDate,
-            })),
-          }}
-          clients={clients}
-          employees={employees}
-          submitLabel="Save changes"
-        />
-        {isOwner(user) && (
+      {canEdit ? (
+        <div className="card p-6">
+          <h2 className="text-lg font-semibold mb-4">Edit contract</h2>
+          <ContractForm
+            action={updateContract.bind(null, contract.id)}
+            initial={{
+              clientId: contract.clientId,
+              title: contract.title,
+              description: contract.description,
+              totalAmount: Number(contract.totalAmount),
+              currency: contract.currency,
+              status: contract.status,
+              startDate: contract.startDate,
+              endDate: contract.endDate,
+              assignedUserIds: contract.assignments.map((a) => a.userId),
+              milestones: contract.payments.map((p) => ({
+                label: p.label,
+                amount: Number(p.amount),
+                dueDate: p.dueDate,
+              })),
+            }}
+            clients={clients}
+            employees={employees}
+            submitLabel="Save changes"
+          />
           <form
             action={deleteContract.bind(null, contract.id)}
             className="mt-6 border-t pt-4 flex justify-end"
           >
             <button type="submit" className="btn-danger">Delete contract</button>
           </form>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="card p-6 space-y-4">
+          <h2 className="text-lg font-semibold">Contract details</h2>
+          <dl className="grid gap-4 sm:grid-cols-2 text-sm">
+            <div>
+              <dt className="text-slate-500">Status</dt>
+              <dd>
+                <span className={`badge ${CONTRACT_STATUS_BADGE[contract.status] ?? "bg-slate-100"}`}>
+                  {contract.status}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Start date</dt>
+              <dd>{formatDate(contract.startDate)}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">End date</dt>
+              <dd>{contract.endDate ? formatDate(contract.endDate) : "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Total</dt>
+              <dd>{formatMoney(contract.totalAmount, contract.currency)}</dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-slate-500">Description</dt>
+              <dd className="whitespace-pre-wrap">{contract.description ?? "—"}</dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-slate-500">Assigned staff</dt>
+              <dd>
+                {contract.assignments.length === 0
+                  ? "—"
+                  : contract.assignments
+                      .map((a) => `${a.user.name} (${a.user.email})`)
+                      .join(", ")}
+              </dd>
+            </div>
+          </dl>
+          <p className="text-xs text-slate-500 border-t pt-3">
+            View-only. Contact the owner to make changes.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

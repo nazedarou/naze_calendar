@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
-import { requireOwner, requireUser } from "@/lib/permissions";
+import { requireOwner } from "@/lib/permissions";
 
 const milestoneSchema = z.object({
   label: z.string().min(1).max(120),
@@ -58,7 +58,7 @@ function buildPayload(formData: FormData) {
 }
 
 export async function createContract(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireOwner();
   const data = contractSchema.parse(buildPayload(formData));
 
   const contract = await prisma.contract.create({
@@ -91,7 +91,7 @@ export async function createContract(formData: FormData) {
 }
 
 export async function updateContract(id: string, formData: FormData) {
-  await requireUser();
+  await requireOwner();
   const data = contractSchema.parse(buildPayload(formData));
 
   await prisma.$transaction(async (tx) => {
@@ -153,7 +153,7 @@ const markPaidSchema = z.object({
 });
 
 export async function togglePayment(milestoneId: string, formData: FormData) {
-  await requireUser();
+  await requireOwner();
   const { paid } = markPaidSchema.parse({ paid: formData.get("paid") });
 
   const m = await prisma.paymentMilestone.update({
