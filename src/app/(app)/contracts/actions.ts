@@ -200,3 +200,32 @@ export async function togglePayment(milestoneId: string, formData: FormData) {
   }
 }
 
+const costSchema = z.object({
+  label: z.string().min(1).max(200),
+  amount: z.coerce.number().positive(),
+});
+
+export async function addProjectCost(contractId: string, formData: FormData) {
+  await requireContractAccess(contractId);
+  const data = costSchema.parse({
+    label: formData.get("label"),
+    amount: formData.get("amount"),
+  });
+  await prisma.projectCost.create({
+    data: { contractId, label: data.label.trim(), amount: new Prisma.Decimal(data.amount) },
+  });
+  revalidatePath(`/contracts/${contractId}`);
+  revalidatePath("/");
+}
+
+export async function deleteProjectCost(costId: string) {
+  const cost = await prisma.projectCost.findUniqueOrThrow({
+    where: { id: costId },
+    select: { contractId: true },
+  });
+  await requireContractAccess(cost.contractId);
+  await prisma.projectCost.delete({ where: { id: costId } });
+  revalidatePath(`/contracts/${cost.contractId}`);
+  revalidatePath("/");
+}
+

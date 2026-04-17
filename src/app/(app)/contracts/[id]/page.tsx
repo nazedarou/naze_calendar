@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { isOwner, requireContractAccess } from "@/lib/permissions";
 import { formatDate, formatMoney } from "@/lib/format";
 import { ContractForm } from "../contract-form";
-import { clearPaymentDue, deleteContract, markPaymentDue, togglePayment, updateContract } from "../actions";
+import { clearPaymentDue, deleteContract, markPaymentDue, togglePayment, updateContract, addProjectCost, deleteProjectCost } from "../actions";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -26,6 +26,7 @@ export default async function ContractDetailPage({ params }: Props) {
         client: true,
         payments: { orderBy: { stage: "asc" } },
         assignments: { include: { user: true } },
+        costs: { orderBy: { createdAt: "asc" } },
       },
     }),
     prisma.client.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -41,6 +42,12 @@ export default async function ContractDetailPage({ params }: Props) {
   const totalPaid = contract.payments
     .filter((p) => p.status === "PAID")
     .reduce((acc, p) => acc + Number(p.amount), 0);
+  const totalCosts = contract.costs.reduce((acc, c) => acc + Number(c.amount), 0);
+  const grossProfit = totalPaid - totalCosts;
+  const projectedProfit = Number(contract.totalAmount) - totalCosts;
+  const margin = Number(contract.totalAmount) > 0
+    ? Math.round((projectedProfit / Number(contract.totalAmount)) * 100)
+    : 0;
 
   return (
     <div className="space-y-8">
@@ -53,8 +60,12 @@ export default async function ContractDetailPage({ params }: Props) {
           <Link href={`/clients/${contract.client.id}`} className="text-brand-600 hover:underline">
             {contract.client.name}
           </Link>{" "}
-          · {formatMoney(contract.totalAmount)} total ·{" "}
-          {formatMoney(totalPaid)} collected
+          · {formatMoney(contract.totalAmount)} total · {formatMoney(totalPaid)} collected
+          {totalCosts > 0 && (
+            <> · <span className={grossProfit >= 0 ? "text-green-700" : "text-red-600"}>
+              {formatMoney(grossProfit)} gross profit
+            </span> · <span>{margin}% margin</span></>
+          )}
         </p>
       </div>
 
@@ -111,6 +122,72 @@ export default async function ContractDetailPage({ params }: Props) {
             );
           })}
         </ul>
+      </div>
+
+      <div className="card p-6">
+        <h2 className="text-lg font-semibold mb-4">Project costs</h2>
+
+        {/* Profit summary */}
+        {totalCosts > 0 && (
+          <div className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+            <div className="rounded-lg bg-slate-50 px-4 py-3">
+              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Total costs</div>
+              <div className="font-semibold text-slate-800">{formatMoney(totalCosts)}</div>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-4 py-3">
+              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Collected</div>
+              <div className="font-semibold text-slate-800">{formatMoney(totalPaid)}</div>
+            </div>
+            <div className={`rounded-lg px-4 py-3 ${grossProfit >= 0 ? "bg-green-50" : "bg-red-50"}`}>
+              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Gross profit</div>
+              <div className={`font-semibold ${grossProfit >= 0 ? "text-green-700" : "text-red-600"}`}>
+                {formatMoney(grossProfit)}
+              </div>
+            </div>
+            <div className={`rounded-lg px-4 py-3 ${margin >= 0 ? "bg-green-50" : "bg-red-50"}`}>
+              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Proj. margin</div>
+              <div className={`font-semibold ${margin >= 0 ? "text-green-700" : "text-red-600"}`}>
+                {margin}%
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cost list */}
+        {contract.costs.length > 0 && (
+          <ul className="mb-4 divide-y divide-slate-200">
+            {contract.costs.map((c) => (
+              <li key={c.id} className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-sm">{c.label}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold">{formatMoney(c.amount)}</span>
+                  <form action={deleteProjectCost.bind(null, c.id)}>
+                    <button type="submit" className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+                      Remove
+                    </button>
+                  </form>
+                </div>
+              </li>
+            ))}
+            <li className="pt-2.5 flex justify-between text-sm font-semibold text-slate-700">
+              <span>Total</span>
+              <span>{formatMoney(totalCosts)}</span>
+            </li>
+          </ul>
+        )}
+
+        {/* Add cost form */}
+        <form action={addProjectCost.bind(null, contract.id)} className="flex flex-wrap gap-2 items-end">
+          <div className="flex-1 min-w-40">
+            <label className="label text-xs">Description</label>
+            <input name="label" required placeholder="e.g. Carpentry manpower" className="input text-sm" />
+          </div>
+          <div className="w-36">
+            <label className="label text-xs">Amount</label>
+            <input name="amount" type="number" step="0.01" min="0.01" required placeholder="0.00" className="input text-sm" />
+          </div>
+          <button type="submit" className="btn-secondary text-sm">+ Add cost</button>
+        </form>
       </div>
 
       <div className="card p-6">

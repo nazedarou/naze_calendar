@@ -88,6 +88,7 @@ model Contract {
   payments    PaymentMilestone[]
   assignments ContractAssignment[]
   events      Event[]
+  costs       ProjectCost[]
 
   @@index([clientId])
   @@index([status])
@@ -122,6 +123,17 @@ model MilestoneSync {
   user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([milestoneId, userId])
+}
+
+model ProjectCost {
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  label      String
+  amount     Decimal  @db.Decimal(12, 2)
+  createdAt  DateTime @default(now())
+
+  @@index([contractId])
 }
 
 model ContractAssignment {

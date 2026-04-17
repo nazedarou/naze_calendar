@@ -34,6 +34,7 @@ export default async function DashboardPage() {
     clientsCount,
     activeContractsCount,
     revenueData,
+    allCosts,
     recentContracts,
   ] = await Promise.all([
     prisma.event.findMany({
@@ -54,6 +55,12 @@ export default async function DashboardPage() {
       ? prisma.paymentMilestone.findMany({
           where: { contract: { status: { in: ["ACTIVE", "DRAFT"] } } },
           select: { amount: true, status: true },
+        })
+      : Promise.resolve(null),
+    owner
+      ? prisma.projectCost.findMany({
+          where: { contract: { status: { in: ["ACTIVE", "DRAFT"] } } },
+          select: { amount: true },
         })
       : Promise.resolve(null),
     owner
@@ -78,6 +85,8 @@ export default async function DashboardPage() {
     }
   }
   const totalOutstanding = totalContracted - totalCollected;
+  const totalCosts = allCosts ? allCosts.reduce((acc, c) => acc + Number(c.amount), 0) : 0;
+  const grossProfit = totalCollected - totalCosts;
 
   return (
     <div className="space-y-8">
@@ -96,10 +105,11 @@ export default async function DashboardPage() {
 
       {/* Revenue summary — owner only */}
       {owner && (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <RevenueStat label="Total contracted" value={totalContracted} />
           <RevenueStat label="Collected" value={totalCollected} tone="positive" />
           <RevenueStat label="Outstanding" value={totalOutstanding} tone={totalOutstanding > 0 ? "warn" : "positive"} />
+          <RevenueStat label="Gross profit" value={grossProfit} tone={grossProfit >= 0 ? "positive" : "danger"} />
         </div>
       )}
 
@@ -233,12 +243,12 @@ function Stat({ label, value, href, tone }: { label: string; value: number; href
   return href ? <Link href={href}>{body}</Link> : body;
 }
 
-function RevenueStat({ label, value, tone }: { label: string; value: number; tone?: "positive" | "warn" }) {
+function RevenueStat({ label, value, tone }: { label: string; value: number; tone?: "positive" | "warn" | "danger" }) {
   return (
     <div className="card p-4">
       <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
       <div className={`text-2xl font-semibold ${
-        tone === "positive" ? "text-green-700" : tone === "warn" ? "text-amber-700" : ""
+        tone === "positive" ? "text-green-700" : tone === "warn" ? "text-amber-700" : tone === "danger" ? "text-red-600" : ""
       }`}>
         {formatMoney(value)}
       </div>
