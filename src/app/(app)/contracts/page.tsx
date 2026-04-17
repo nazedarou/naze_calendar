@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isOwner, requireUser } from "@/lib/permissions";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -6,8 +7,10 @@ import { formatDate, formatMoney } from "@/lib/format";
 const PAGE_SIZE = 20;
 
 type Props = {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; status?: string }>;
 };
+
+type StatusFilter = "ongoing" | "completed" | "all";
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: "bg-slate-200 text-slate-700",
@@ -19,21 +22,27 @@ const STATUS_BADGE: Record<string, string> = {
 export default async function ContractsPage({ searchParams }: Props) {
   const user = await requireUser();
   const owner = isOwner(user);
-  const { q, page: pageParam } = await searchParams;
+  const { q, page: pageParam, status: statusParam } = await searchParams;
   const query = q?.trim() ?? "";
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const skip = (page - 1) * PAGE_SIZE;
+  const statusFilter: StatusFilter =
+    statusParam === "completed" ? "completed" : statusParam === "all" ? "all" : "ongoing";
 
-  const assignmentFilter = owner ? undefined : { assignments: { some: { userId: user.id } } };
-  const where = query
-    ? {
-        ...assignmentFilter,
-        OR: [
-          { title: { contains: query, mode: "insensitive" as const } },
-          { client: { name: { contains: query, mode: "insensitive" as const } } },
-        ],
-      }
-    : assignmentFilter;
+  const where: Prisma.ContractWhereInput = {
+    ...(owner ? {} : { assignments: { some: { userId: user.id } } }),
+    ...(statusFilter === "ongoing"
+      ? { status: { in: ["DRAFT", "ACTIVE"] } }
+      : statusFilter === "completed"
+        ? { status: { in: ["COMPLETED", "CANCELLED"] } }
+        : {}),
+    ...(query && {
+      OR: [
+        { title: { contains: query, mode: "insensitive" } },
+        { client: { name: { contains: query, mode: "insensitive" } } },
+      ],
+    }),
+  };
 
   const [contracts, total] = await Promise.all([
     prisma.contract.findMany({
@@ -50,7 +59,9 @@ export default async function ContractsPage({ searchParams }: Props) {
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  const params = (p: number) => `?${new URLSearchParams({ ...(query && { q: query }), page: String(p) })}`;
+  const buildUrl = (overrides: Record<string, string>) =>
+    `?${new URLSearchParams({ ...(query && { q: query }), status: statusFilter, page: "1", ...overrides })}`;
+  const params = (p: number) => buildUrl({ page: String(p) });
 
   return (
     <div>
@@ -62,16 +73,40 @@ export default async function ContractsPage({ searchParams }: Props) {
         {owner && <Link href="/contracts/new" className="btn-primary">+ New contract</Link>}
       </div>
 
-      <form method="GET" className="mb-4">
-        <input
-          name="q"
-          type="search"
-          defaultValue={query}
-          placeholder="Search by contract title or client name…"
-          className="input max-w-sm"
-          autoComplete="off"
-        />
-      </form>
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <form method="GET" className="flex-1 min-w-48 max-w-sm">
+          <input type="hidden" name="status" value={statusFilter} />
+          <input
+            name="q"
+            type="search"
+            defaultValue={query}
+            placeholder="Search by title or client…"
+            className="input"
+            autoComplete="off"
+          />
+        </form>
+        <div className="flex items-center gap-1 border border-brand-200 rounded-lg overflow-hidden text-sm">
+          {(
+            [
+              { key: "ongoing", label: "Ongoing" },
+              { key: "all",     label: "All" },
+              { key: "completed", label: "Completed" },
+            ] as { key: StatusFilter; label: string }[]
+          ).map(({ key, label }) => (
+            <Link
+              key={key}
+              href={buildUrl({ status: key })}
+              className={`px-3 py-1.5 transition-colors ${
+                statusFilter === key
+                  ? "bg-brand-600 text-white"
+                  : "text-slate-600 hover:bg-brand-50"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       {total === 0 ? (
         <div className="card p-8 text-center text-slate-500">
