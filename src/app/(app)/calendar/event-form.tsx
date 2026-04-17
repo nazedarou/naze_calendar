@@ -19,6 +19,8 @@ export function EventForm({
   submitLabel,
   defaultClientId,
   defaultContractId,
+  currentUserId,
+  isEmployee = false,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   initial?: Initial;
@@ -28,9 +30,12 @@ export function EventForm({
   submitLabel: string;
   defaultClientId?: string;
   defaultContractId?: string;
+  currentUserId?: string;
+  isEmployee?: boolean;
 }) {
   const now = new Date();
   const assigned = new Set(initial?.assignedUserIds ?? []);
+  if (isEmployee && currentUserId) assigned.add(currentUserId);
 
   return (
     <form action={action} className="space-y-5">
@@ -92,17 +97,26 @@ export function EventForm({
           <p className="text-xs text-slate-500">No employees yet.</p>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2">
-            {employees.map((e) => (
-              <label key={e.id} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="assignedUserIds"
-                  value={e.id}
-                  defaultChecked={assigned.has(e.id)}
-                />
-                <span>{e.name} <span className="text-xs text-slate-500">({e.email})</span></span>
-              </label>
-            ))}
+            {employees.map((e) => {
+              const locked = isEmployee && e.id === currentUserId;
+              return (
+                <label key={e.id} className={`flex items-center gap-2 text-sm ${locked ? "opacity-70 cursor-not-allowed" : ""}`}>
+                  <input
+                    type="checkbox"
+                    name="assignedUserIds"
+                    value={e.id}
+                    defaultChecked={assigned.has(e.id)}
+                    disabled={locked}
+                  />
+                  {locked && <input type="hidden" name="assignedUserIds" value={e.id} />}
+                  <span>
+                    {e.name}
+                    {locked && <span className="ml-1 text-xs text-brand-600">(you)</span>}
+                    {" "}<span className="text-xs text-slate-500">({e.email})</span>
+                  </span>
+                </label>
+              );
+            })}
           </div>
         )}
       </div>

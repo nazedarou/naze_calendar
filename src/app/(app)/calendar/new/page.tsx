@@ -7,7 +7,7 @@ import { createEvent } from "../actions";
 type Props = { searchParams: Promise<{ clientId?: string; contractId?: string }> };
 
 export default async function NewEventPage({ searchParams }: Props) {
-  await requireUser();
+  const user = await requireUser();
   const { clientId, contractId } = await searchParams;
 
   const [clients, contracts, employees] = await Promise.all([
@@ -40,6 +40,8 @@ export default async function NewEventPage({ searchParams }: Props) {
           defaultClientId={clientId}
           defaultContractId={contractId}
           submitLabel="Create event"
+          currentUserId={user.id}
+          isEmployee={user.role === "EMPLOYEE"}
         />
       </div>
     </div>

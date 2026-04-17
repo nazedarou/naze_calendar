@@ -62,6 +62,8 @@ export default async function EventDetailPage({ params }: Props) {
           contracts={contracts}
           employees={employees}
           submitLabel="Save changes"
+          currentUserId={user.id}
+          isEmployee={user.role === "EMPLOYEE"}
         />
         {isOwner(user) && (
           <form
