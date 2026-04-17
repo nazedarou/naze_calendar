@@ -30,14 +30,15 @@ enum PaymentStatus {
 
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
-  passwordHash String
-  role         Role     @default(EMPLOYEE)
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  email               String   @unique
+  name                String
+  passwordHash        String
+  role                Role     @default(EMPLOYEE)
+  active              Boolean  @default(true)
+  googleRefreshToken  String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   createdClients   Client[]   @relation("ClientCreatedBy")
   createdContracts Contract[] @relation("ContractCreatedBy")
@@ -45,6 +46,7 @@ model User {
 
   contractAssignments ContractAssignment[]
   eventAssignments    EventAssignment[]
+  milestoneSyncs      MilestoneSync[]
 }
 
 model Client {
@@ -94,8 +96,8 @@ model PaymentMilestone {
   id         String        @id @default(cuid())
   contractId String
   contract   Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  stage      Int           // 1..4
-  label      String        // e.g. "Deposit", "Design Phase"
+  stage      Int
+  label      String
   amount     Decimal       @db.Decimal(12, 2)
   dueDate    DateTime?
   paidDate   DateTime?
@@ -104,9 +106,21 @@ model PaymentMilestone {
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 
+  googleSync MilestoneSync[]
+
   @@unique([contractId, stage])
   @@index([dueDate])
   @@index([status])
+}
+
+model MilestoneSync {
+  milestoneId   String
+  userId        String
+  googleEventId String
+  milestone     PaymentMilestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([milestoneId, userId])
 }
 
 model ContractAssignment {
@@ -145,11 +159,12 @@ model Event {
 }
 
 model EventAssignment {
-  eventId    String
-  userId     String
-  event      Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assignedAt DateTime @default(now())
+  eventId       String
+  userId        String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedAt    DateTime @default(now())
+  googleEventId String?
 
   @@id([eventId, userId])
   @@index([userId])

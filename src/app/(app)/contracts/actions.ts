@@ -7,6 +7,7 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 import { requireOwner, requireContractAccess } from "@/lib/permissions";
+import { syncMilestoneToGoogle, deleteMilestoneFromGoogle } from "@/lib/google-calendar";
 
 import { STAGE_LABELS, STAGE_PERCENTAGES } from "./helpers";
 
@@ -153,6 +154,7 @@ export async function clearPaymentDue(milestoneId: string) {
   revalidatePath(`/contracts/${m.contractId}`);
   revalidatePath("/calendar");
   revalidatePath("/");
+  deleteMilestoneFromGoogle(milestoneId).catch(console.error);
 }
 
 export async function markPaymentDue(milestoneId: string) {
@@ -169,6 +171,7 @@ export async function markPaymentDue(milestoneId: string) {
   revalidatePath(`/contracts/${m.contractId}`);
   revalidatePath("/calendar");
   revalidatePath("/");
+  syncMilestoneToGoogle(milestoneId).catch(console.error);
 }
 
 export async function togglePayment(milestoneId: string, formData: FormData) {
@@ -190,5 +193,10 @@ export async function togglePayment(milestoneId: string, formData: FormData) {
   revalidatePath(`/contracts/${m.contractId}`);
   revalidatePath("/");
   revalidatePath("/contracts");
+  if (paid === "true") {
+    deleteMilestoneFromGoogle(milestoneId).catch(console.error);
+  } else {
+    syncMilestoneToGoogle(milestoneId).catch(console.error);
+  }
 }
 

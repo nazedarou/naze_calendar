@@ -36,6 +36,15 @@ export async function updateProfile(formData: FormData) {
   redirect("/profile?success=profile");
 }
 
+export async function disconnectGoogle() {
+  const user = await requireUser();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { googleRefreshToken: null },
+  });
+  redirect("/profile?success=google_disconnected");
+}
+
 export async function changePassword(formData: FormData) {
   const user = await requireUser();
 

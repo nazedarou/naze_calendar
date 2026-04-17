@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { requireOwner, requireUser } from "@/lib/permissions";
+import { syncEventToGoogle, deleteEventFromGoogle } from "@/lib/google-calendar";
 
 const eventSchema = z.object({
   title: z.string().min(1).max(200),
@@ -54,6 +55,7 @@ export async function createEvent(formData: FormData) {
   });
   revalidatePath("/calendar");
   revalidatePath("/");
+  syncEventToGoogle(event.id).catch(console.error);
   redirect(`/calendar/${event.id}`);
 }
 
@@ -83,11 +85,13 @@ export async function updateEvent(id: string, formData: FormData) {
   revalidatePath("/calendar");
   revalidatePath(`/calendar/${id}`);
   revalidatePath("/");
+  syncEventToGoogle(id).catch(console.error);
   redirect(`/calendar/${id}`);
 }
 
 export async function deleteEvent(id: string) {
   await requireOwner();
+  await deleteEventFromGoogle(id).catch(console.error);
   await prisma.event.delete({ where: { id } });
   revalidatePath("/calendar");
   revalidatePath("/");
