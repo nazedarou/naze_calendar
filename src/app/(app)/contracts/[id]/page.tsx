@@ -78,7 +78,7 @@ export default async function ContractDetailPage({ params }: Props) {
             return (
               <li key={p.id} className="py-3 flex items-center justify-between gap-4">
                 <div>
-                  <div className="font-medium">Stage {p.stage} — {p.label}</div>
+                  <div className="font-medium">{p.label}</div>
                   <div className="text-xs text-slate-500">
                     {p.status === "PAID" && p.paidDate
                       ? `Paid ${formatDate(p.paidDate)}`
