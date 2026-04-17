@@ -42,9 +42,10 @@ const CONTRACT_STATUS_STYLE: Record<string, string> = {
 };
 
 export default async function CalendarPage({ searchParams }: Props) {
-  await requireUser();
+  const user = await requireUser();
+  const isOwner = user.role === "OWNER";
   const { month, view } = await searchParams;
-  const activeView = view === "employees" ? "employees" : "month";
+  const activeView = isOwner && view === "employees" ? "employees" : "month";
   const cursor = parseMonth(month);
   const monthParam = format(cursor, "yyyy-MM");
 
@@ -70,11 +71,13 @@ export default async function CalendarPage({ searchParams }: Props) {
             href={`/calendar?view=month&month=${monthParam}`}
             label="Month"
           />
-          <TabLink
-            active={activeView === "employees"}
-            href={`/calendar?view=employees&month=${monthParam}`}
-            label="By employee"
-          />
+          {isOwner && (
+            <TabLink
+              active={activeView === "employees"}
+              href={`/calendar?view=employees&month=${monthParam}`}
+              label="By employee"
+            />
+          )}
         </nav>
       </div>
 
