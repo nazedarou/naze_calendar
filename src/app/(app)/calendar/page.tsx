@@ -154,7 +154,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
         <div className="grid grid-cols-7">
           {days.map((day) => {
             const dayEvents = events.filter((e) => isSameDay(e.startAt, day));
-            const dayPayments = payments.filter((p) => isSameDay(p.dueDate, day));
+            const dayPayments = payments.filter((p) => p.dueDate && isSameDay(p.dueDate, day));
             const inMonth = isSameMonth(day, cursor);
             const isToday = isSameDay(day, new Date());
 
@@ -193,7 +193,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
                 const visual: PaymentVisualStatus =
                   p.status === "PAID"
                     ? "PAID"
-                    : p.dueDate < now
+                    : p.dueDate && p.dueDate < now
                       ? "OVERDUE"
                       : "PENDING";
                 return {
@@ -359,7 +359,7 @@ async function EmployeesView({ cursor }: { cursor: Date }) {
                       {contracts.map((c) => {
                         const nextDue = c.payments.find((p) => p.status !== "PAID");
                         const overdue =
-                          nextDue && nextDue.dueDate < now ? "OVERDUE" : nextDue?.status;
+                          nextDue && nextDue.dueDate && nextDue.dueDate < now ? "OVERDUE" : nextDue?.status;
                         return (
                           <li key={c.id} className="py-2 flex items-start justify-between gap-3">
                             <div>
