@@ -39,12 +39,20 @@ async function calendarForUser(userId: string) {
   return google.calendar({ version: "v3", auth: client });
 }
 
+async function connectedOwners() {
+  return prisma.user.findMany({
+    where: { role: "OWNER", active: true, googleRefreshToken: { not: null } },
+    select: { id: true },
+  });
+}
+
 export async function syncEventToGoogle(eventId: string) {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     include: {
       client: true,
       assignments: { include: { user: { select: { id: true } } } },
+      ownerSyncs: true,
     },
   });
   if (!event) return;
@@ -59,11 +67,11 @@ export async function syncEventToGoogle(eventId: string) {
     end: { dateTime: end.toISOString() },
   };
 
+  // Sync to assigned employees
   for (const { userId, googleEventId } of event.assignments) {
     try {
       const cal = await calendarForUser(userId);
       if (!cal) continue;
-
       if (googleEventId) {
         await cal.events.update({ calendarId: "primary", eventId: googleEventId, requestBody: body });
       } else {
@@ -76,15 +84,39 @@ export async function syncEventToGoogle(eventId: string) {
         }
       }
     } catch (err) {
-      console.error(`syncEventToGoogle failed for user ${userId}:`, err);
+      console.error(`syncEventToGoogle (assigned) failed for user ${userId}:`, err);
+    }
+  }
+
+  // Sync to all connected owners
+  const assignedIds = new Set(event.assignments.map((a) => a.userId));
+  const owners = await connectedOwners();
+  for (const { id: userId } of owners) {
+    if (assignedIds.has(userId)) continue;
+    try {
+      const cal = await calendarForUser(userId);
+      if (!cal) continue;
+      const existing = event.ownerSyncs.find((s) => s.userId === userId);
+      if (existing) {
+        await cal.events.update({ calendarId: "primary", eventId: existing.googleEventId, requestBody: body });
+      } else {
+        const res = await cal.events.insert({ calendarId: "primary", requestBody: body });
+        if (res.data.id) {
+          await prisma.eventOwnerSync.create({ data: { eventId, userId, googleEventId: res.data.id } });
+        }
+      }
+    } catch (err) {
+      console.error(`syncEventToGoogle (owner) failed for user ${userId}:`, err);
     }
   }
 }
 
 export async function deleteEventFromGoogle(eventId: string) {
-  const assignments = await prisma.eventAssignment.findMany({
-    where: { eventId },
-  });
+  const [assignments, ownerSyncs] = await Promise.all([
+    prisma.eventAssignment.findMany({ where: { eventId } }),
+    prisma.eventOwnerSync.findMany({ where: { eventId } }),
+  ]);
+
   for (const { userId, googleEventId } of assignments) {
     if (!googleEventId) continue;
     try {
@@ -92,7 +124,17 @@ export async function deleteEventFromGoogle(eventId: string) {
       if (!cal) continue;
       await cal.events.delete({ calendarId: "primary", eventId: googleEventId });
     } catch (err) {
-      console.error(`deleteEventFromGoogle failed for user ${userId}:`, err);
+      console.error(`deleteEventFromGoogle (assigned) failed for user ${userId}:`, err);
+    }
+  }
+
+  for (const { userId, googleEventId } of ownerSyncs) {
+    try {
+      const cal = await calendarForUser(userId);
+      if (!cal) continue;
+      await cal.events.delete({ calendarId: "primary", eventId: googleEventId });
+    } catch (err) {
+      console.error(`deleteEventFromGoogle (owner) failed for user ${userId}:`, err);
     }
   }
 }
@@ -115,20 +157,24 @@ export async function syncMilestoneToGoogle(milestoneId: string) {
     end: { date: dateStr },
   };
 
-  for (const { userId } of milestone.contract.assignments) {
+  const assignedIds = new Set(milestone.contract.assignments.map((a) => a.userId));
+  const owners = await connectedOwners();
+  const allUserIds = [
+    ...milestone.contract.assignments.map((a) => a.userId),
+    ...owners.map((o) => o.id).filter((id) => !assignedIds.has(id)),
+  ];
+
+  for (const userId of allUserIds) {
     try {
       const cal = await calendarForUser(userId);
       if (!cal) continue;
-
       const existing = milestone.googleSync.find((s) => s.userId === userId);
       if (existing) {
         await cal.events.update({ calendarId: "primary", eventId: existing.googleEventId, requestBody: body });
       } else {
         const res = await cal.events.insert({ calendarId: "primary", requestBody: body });
         if (res.data.id) {
-          await prisma.milestoneSync.create({
-            data: { milestoneId, userId, googleEventId: res.data.id },
-          });
+          await prisma.milestoneSync.create({ data: { milestoneId, userId, googleEventId: res.data.id } });
         }
       }
     } catch (err) {
