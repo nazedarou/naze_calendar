@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import type { Role } from "@prisma/client";
+import { authConfig } from "./auth.config";
 
 declare module "next-auth" {
   interface Session {
@@ -36,10 +37,7 @@ const credentialsSchema = z.object({
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -67,20 +65,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id as string;
-        token.role = (user as { role: Role }).role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = (token as { id: string }).id;
-        session.user.role = (token as { role: Role }).role;
-      }
-      return session;
-    },
-  },
 });
