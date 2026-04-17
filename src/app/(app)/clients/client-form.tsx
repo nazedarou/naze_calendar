@@ -1,0 +1,47 @@
+type Initial = {
+  name?: string;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  notes?: string | null;
+};
+
+export function ClientForm({
+  action,
+  initial,
+  submitLabel,
+}: {
+  action: (formData: FormData) => void | Promise<void>;
+  initial?: Initial;
+  submitLabel: string;
+}) {
+  return (
+    <form action={action} className="space-y-4">
+      <div>
+        <label className="label" htmlFor="name">Name *</label>
+        <input id="name" name="name" required defaultValue={initial?.name ?? ""} className="input" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="label" htmlFor="email">Email</label>
+          <input id="email" name="email" type="email" defaultValue={initial?.email ?? ""} className="input" />
+        </div>
+        <div>
+          <label className="label" htmlFor="phone">Phone</label>
+          <input id="phone" name="phone" defaultValue={initial?.phone ?? ""} className="input" />
+        </div>
+      </div>
+      <div>
+        <label className="label" htmlFor="address">Address</label>
+        <input id="address" name="address" defaultValue={initial?.address ?? ""} className="input" />
+      </div>
+      <div>
+        <label className="label" htmlFor="notes">Notes</label>
+        <textarea id="notes" name="notes" rows={4} defaultValue={initial?.notes ?? ""} className="input" />
+      </div>
+      <div className="flex justify-end">
+        <button type="submit" className="btn-primary">{submitLabel}</button>
+      </div>
+    </form>
+  );
+}
