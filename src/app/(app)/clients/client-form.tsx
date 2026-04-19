@@ -4,16 +4,19 @@ type Initial = {
   phone?: string | null;
   address?: string | null;
   notes?: string | null;
+  assignedToId?: string | null;
 };
 
 export function ClientForm({
   action,
   initial,
   submitLabel,
+  employees = [],
 }: {
   action: (formData: FormData) => void | Promise<void>;
   initial?: Initial;
   submitLabel: string;
+  employees?: { id: string; name: string }[];
 }) {
   return (
     <form action={action} className="space-y-4">
@@ -34,6 +37,20 @@ export function ClientForm({
       <div>
         <label className="label" htmlFor="address">Address</label>
         <input id="address" name="address" defaultValue={initial?.address ?? ""} className="input" />
+      </div>
+      <div>
+        <label className="label" htmlFor="assignedToId">Assigned employee</label>
+        <select
+          id="assignedToId"
+          name="assignedToId"
+          defaultValue={initial?.assignedToId ?? ""}
+          className="input"
+        >
+          <option value="">— Unassigned</option>
+          {employees.map((e) => (
+            <option key={e.id} value={e.id}>{e.name}</option>
+          ))}
+        </select>
       </div>
       <div>
         <label className="label" htmlFor="notes">Notes</label>

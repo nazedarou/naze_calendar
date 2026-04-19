@@ -1,8 +1,15 @@
 import Link from "next/link";
+import { prisma } from "@/lib/db";
 import { ClientForm } from "../client-form";
 import { createClient } from "../actions";
 
-export default function NewClientPage() {
+export default async function NewClientPage() {
+  const employees = await prisma.user.findMany({
+    where: { active: true },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
+
   return (
     <div>
       <div className="mb-6">
@@ -12,7 +19,7 @@ export default function NewClientPage() {
         <h1 className="mt-2 text-2xl font-semibold">New client</h1>
       </div>
       <div className="card p-6 max-w-2xl">
-        <ClientForm action={createClient} submitLabel="Create client" />
+        <ClientForm action={createClient} submitLabel="Create client" employees={employees} />
       </div>
     </div>
   );

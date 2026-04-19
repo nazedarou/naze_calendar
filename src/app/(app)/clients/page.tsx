@@ -33,14 +33,7 @@ export default async function ClientsPage({ searchParams }: Props) {
       take: PAGE_SIZE,
       include: {
         _count: { select: { contracts: true, events: true } },
-        contracts: {
-          where: { status: { in: ["ACTIVE", "DRAFT"] } },
-          include: {
-            assignments: {
-              include: { user: { select: { id: true, name: true } } },
-            },
-          },
-        },
+        assignedTo: { select: { id: true, name: true } },
       },
     }),
     prisma.client.count({ where }),
@@ -96,33 +89,24 @@ export default async function ClientsPage({ searchParams }: Props) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white text-sm">
-                {clients.map((c) => {
-                  const assignees = [
-                    ...new Map(
-                      c.contracts
-                        .flatMap((ct) => ct.assignments.map((a) => a.user))
-                        .map((u) => [u.id, u])
-                    ).values(),
-                  ];
-                  return (
-                    <tr key={c.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 font-medium">
-                        <Link href={`/clients/${c.id}`} className="text-brand-700 hover:underline">
-                          {c.name}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">{c.email ?? "—"}</td>
-                      <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{c.phone ?? "—"}</td>
-                      <td className="px-4 py-3 text-slate-600 hidden md:table-cell">
-                        {assignees.length > 0
-                          ? assignees.map((u) => u.name).join(", ")
-                          : <span className="text-slate-400">—</span>}
-                      </td>
-                      <td className="px-4 py-3 hidden sm:table-cell">{c._count.contracts}</td>
-                      <td className="px-4 py-3 hidden sm:table-cell">{c._count.events}</td>
-                    </tr>
-                  );
-                })}
+                {clients.map((c) => (
+                  <tr key={c.id} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 font-medium">
+                      <Link href={`/clients/${c.id}`} className="text-brand-700 hover:underline">
+                        {c.name}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">{c.email ?? "—"}</td>
+                    <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{c.phone ?? "—"}</td>
+                    <td className="px-4 py-3 text-slate-600 hidden md:table-cell">
+                      {c.assignedTo
+                        ? c.assignedTo.name
+                        : <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">{c._count.contracts}</td>
+                    <td className="px-4 py-3 hidden sm:table-cell">{c._count.events}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

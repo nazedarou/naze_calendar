@@ -41,6 +41,7 @@ model User {
   updatedAt           DateTime @updatedAt
 
   createdClients   Client[]   @relation("ClientCreatedBy")
+  assignedClients  Client[]   @relation("ClientAssignedTo")
   createdContracts Contract[] @relation("ContractCreatedBy")
   createdEvents    Event[]    @relation("EventCreatedBy")
 
@@ -63,10 +64,14 @@ model Client {
   createdById String
   createdBy   User   @relation("ClientCreatedBy", fields: [createdById], references: [id])
 
+  assignedToId String?
+  assignedTo   User?  @relation("ClientAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+
   contracts Contract[]
   events    Event[]
 
   @@index([name])
+  @@index([assignedToId])
 }
 
 model Contract {

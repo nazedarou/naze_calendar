@@ -11,19 +11,28 @@ type Props = { params: Promise<{ id: string }> };
 export default async function ClientDetailPage({ params }: Props) {
   const user = await requireUser();
   const { id } = await params;
-  const client = await prisma.client.findUnique({
-    where: { id },
-    include: {
-      contracts: {
-        orderBy: { startDate: "desc" },
-        include: { _count: { select: { payments: true } } },
+
+  const [client, employees] = await Promise.all([
+    prisma.client.findUnique({
+      where: { id },
+      include: {
+        assignedTo: { select: { id: true, name: true } },
+        contracts: {
+          orderBy: { startDate: "desc" },
+          include: { _count: { select: { payments: true } } },
+        },
+        events: {
+          orderBy: { startAt: "desc" },
+          take: 10,
+        },
       },
-      events: {
-        orderBy: { startAt: "desc" },
-        take: 10,
-      },
-    },
-  });
+    }),
+    prisma.user.findMany({
+      where: { active: true },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+  ]);
   if (!client) notFound();
 
   return (
@@ -35,6 +44,7 @@ export default async function ClientDetailPage({ params }: Props) {
         <h1 className="mt-2 text-2xl font-semibold">{client.name}</h1>
         <p className="text-sm text-slate-500">
           Added {formatDate(client.createdAt)}
+          {client.assignedTo && <> · Assigned to <span className="font-medium">{client.assignedTo.name}</span></>}
         </p>
       </div>
 
@@ -43,7 +53,15 @@ export default async function ClientDetailPage({ params }: Props) {
           <h2 className="text-lg font-semibold mb-4">Details</h2>
           <ClientForm
             action={updateClient.bind(null, client.id)}
-            initial={client}
+            initial={{
+              name:         client.name,
+              email:        client.email,
+              phone:        client.phone,
+              address:      client.address,
+              notes:        client.notes,
+              assignedToId: client.assignedToId,
+            }}
+            employees={employees}
             submitLabel="Save changes"
           />
           {isOwner(user) && (
