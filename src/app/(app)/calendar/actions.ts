@@ -6,7 +6,7 @@ import { z } from "zod";
 import { fromZonedTime } from "date-fns-tz";
 
 import { prisma } from "@/lib/db";
-import { requireOwner, requireUser } from "@/lib/permissions";
+import { requireOwner, requireUser, requireEventAccess } from "@/lib/permissions";
 import { syncEventToGoogle, deleteEventFromGoogle } from "@/lib/google-calendar";
 
 const TZ = "Asia/Singapore";
@@ -63,7 +63,7 @@ export async function createEvent(formData: FormData) {
 }
 
 export async function updateEvent(id: string, formData: FormData) {
-  await requireUser();
+  await requireEventAccess(id);
   const data = eventSchema.parse(buildPayload(formData));
 
   await prisma.$transaction(async (tx) => {

@@ -44,3 +44,14 @@ export async function requireContractAccess(contractId: string): Promise<Session
   if (!assignment) redirect("/?error=forbidden");
   return user;
 }
+
+export async function requireEventAccess(eventId: string): Promise<SessionUser> {
+  const user = await requireUser();
+  if (user.role === "OWNER") return user;
+  const assignment = await prisma.eventAssignment.findUnique({
+    where: { eventId_userId: { eventId, userId: user.id } },
+    select: { eventId: true },
+  });
+  if (!assignment) redirect("/?error=forbidden");
+  return user;
+}
