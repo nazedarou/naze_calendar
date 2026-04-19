@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { loginAction } from "./actions";
@@ -14,29 +13,28 @@ export default async function LoginPage({ searchParams }: Props) {
   const { callbackUrl, error, success } = await searchParams;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-ink-950">
+    <div className="min-h-screen flex items-center justify-center px-6 py-12" style={{ backgroundColor: "#F4F3EE" }}>
       <div className="w-full max-w-sm">
         {/* Wordmark */}
         <div className="mb-10">
           <div
-            className="text-[42px] font-extrabold leading-none text-ink-100 tracking-tight mb-2"
+            className="text-[42px] font-extrabold leading-none text-ink-900 tracking-tight mb-2"
             style={{ fontFamily: "var(--font-display)" }}
           >
             FONK
           </div>
           <div
-            className="text-[9px] uppercase text-ink-500"
+            className="text-[9px] uppercase text-stone-400"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.28em" }}
           >
             Interior Management
           </div>
         </div>
 
-        {/* Rule */}
-        <div className="border-t border-ink-600 mb-8" />
+        <div className="border-t border-stone-300 mb-8" />
 
         {success === "password_changed" && (
-          <div className="mb-6 border border-ok-dim bg-ok-ghost px-4 py-3 text-sm text-ok">
+          <div className="mb-6 border border-ok-dim bg-ok-ghost px-4 py-3 text-sm text-ok-dim">
             Password changed — please sign in again.
           </div>
         )}
@@ -66,7 +64,7 @@ export default async function LoginPage({ searchParams }: Props) {
             />
           </div>
           {error && (
-            <div className="border border-danger-dim bg-danger-ghost px-4 py-3 text-sm text-danger" role="alert">
+            <div className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-danger" role="alert">
               {error === "CredentialsSignin"
                 ? "Invalid email or password."
                 : "Sign in failed. Please try again."}

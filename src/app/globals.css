@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,
@@ -12,13 +12,11 @@ body {
 }
 
 body {
-  @apply bg-ink-900 text-ink-100 antialiased;
+  background-color: #F4F3EE;
+  color: #111110;
   font-family: var(--font-display), sans-serif;
-}
-
-/* bg-white legacy override */
-.bg-white {
-  background-color: theme(colors.ink.800);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer components {
@@ -27,10 +25,10 @@ body {
     @apply inline-flex items-center justify-center px-4 py-2 text-sm font-bold uppercase tracking-widest transition disabled:opacity-40 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply btn bg-lime text-ink-950 hover:bg-lime-dim;
+    @apply btn bg-ink-900 text-white hover:bg-ink-700;
   }
   .btn-secondary {
-    @apply btn bg-transparent border border-ink-500 text-ink-200 hover:border-ink-200 hover:text-ink-50;
+    @apply btn bg-transparent border border-stone-300 text-stone-700 hover:border-ink-900 hover:text-ink-900;
   }
   .btn-danger {
     @apply btn bg-danger text-white hover:bg-danger-dim;
@@ -38,20 +36,20 @@ body {
 
   /* ── Form controls ────────────────────────────────────────────── */
   .input {
-    @apply block w-full border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-ink-100
-           focus:border-lime focus:outline-none focus:ring-0
-           placeholder:text-ink-400;
+    @apply block w-full border border-stone-300 bg-white px-3 py-2 text-sm text-ink-900
+           focus:border-ink-900 focus:outline-none focus:ring-0
+           placeholder:text-stone-400;
     border-radius: 0;
   }
   .label {
-    @apply block text-[10px] uppercase text-ink-400 mb-1.5;
+    @apply block text-[10px] uppercase text-stone-500 mb-1.5;
     font-family: var(--font-mono), monospace;
     letter-spacing: 0.12em;
   }
 
   /* ── Panel ────────────────────────────────────────────────────── */
   .card {
-    @apply border border-ink-600 bg-ink-800;
+    @apply border border-stone-200 bg-white;
   }
 
   /* ── Badge ────────────────────────────────────────────────────── */

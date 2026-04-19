@@ -5,7 +5,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Keep brand for any remaining references
         brand: {
           50:  "#FDF9F5",
           100: "#F4EDE3",
@@ -18,7 +17,7 @@ const config: Config = {
           800: "#513B2A",
           900: "#36271B",
         },
-        // Dark design system
+        // Ink scale — used for sidebar + text
         ink: {
           950: "#080807",
           900: "#111110",
@@ -32,80 +31,28 @@ const config: Config = {
           100: "#EEEDEA",
           50:  "#F5F4F2",
         },
+        // Accent — chartreuse, works on both dark sidebar and light content
         lime: {
           DEFAULT: "#CBFF47",
           dim:     "#9BC234",
           dark:    "#3D4E14",
           ghost:   "#1C2808",
         },
+        // Semantic colours — tuned for light backgrounds
         danger: {
-          DEFAULT: "#FF5555",
-          dim:     "#CC2222",
-          ghost:   "#2A0808",
+          DEFAULT: "#DC2626",
+          dim:     "#B91C1C",
+          ghost:   "#FEE2E2",
         },
         warn: {
-          DEFAULT: "#FFA033",
-          dim:     "#CC7700",
-          ghost:   "#2A1800",
+          DEFAULT: "#D97706",
+          dim:     "#B45309",
+          ghost:   "#FEF3C7",
         },
         ok: {
-          DEFAULT: "#4DFF91",
-          dim:     "#28CC60",
-          ghost:   "#052210",
-        },
-        // Remap built-in Tailwind shades used in inner pages → dark equivalents
-        slate: {
-          50:  "#191918",
-          100: "#222220",
-          200: "#2E2E2B",
-          300: "#424240",
-          400: "#636360",
-          500: "#909088",
-          600: "#C0BFB8",
-          700: "#EEEDEA",
-          800: "#F0EFE8",
-          900: "#F5F4F2",
-        },
-        stone: {
-          50:  "#191918",
-          100: "#222220",
-          200: "#2E2E2B",
-          300: "#424240",
-          400: "#636360",
-          500: "#909088",
-          600: "#C0BFB8",
-          700: "#EEEDEA",
-          800: "#F0EFE8",
-          900: "#F5F4F2",
-        },
-        // Status badge colours → neon-on-dark
-        green: {
-          50:  "#052210",
-          100: "#062A14",
-          200: "#0A3D1E",
-          700: "#4DFF91",
-          800: "#4DFF91",
-        },
-        red: {
-          50:  "#220808",
-          100: "#2A0808",
-          200: "#3A0C0C",
-          600: "#FF6B6B",
-          700: "#FF6B6B",
-        },
-        blue: {
-          50:  "#080E22",
-          100: "#0C1430",
-          200: "#121E44",
-          700: "#60AAFF",
-          800: "#60AAFF",
-        },
-        amber: {
-          50:  "#221300",
-          100: "#2A1800",
-          200: "#3A2200",
-          600: "#FFAA44",
-          700: "#FFAA44",
+          DEFAULT: "#16A34A",
+          dim:     "#15803D",
+          ghost:   "#DCFCE7",
         },
       },
       fontFamily: {

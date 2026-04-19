@@ -62,12 +62,12 @@ export function BottomNav({ user }: { user: SessionUser }) {
   const pathname = usePathname();
 
   const links = user.role === "OWNER"
-    ? [...baseLinks, { href: "/employees", label: "Team",  icon: EmployeesIcon, exact: false }]
+    ? [...baseLinks, { href: "/employees", label: "Team", icon: EmployeesIcon, exact: false }]
     : baseLinks;
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-ink-950 border-t border-ink-600 flex items-stretch"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-200 flex items-stretch"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {links.map(({ href, label, icon: Icon, exact }) => {
@@ -77,7 +77,7 @@ export function BottomNav({ user }: { user: SessionUser }) {
             key={href}
             href={href}
             className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-colors ${
-              active ? "text-lime" : "text-ink-500"
+              active ? "text-ink-900" : "text-stone-400"
             }`}
           >
             <Icon />
