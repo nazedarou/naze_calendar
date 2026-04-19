@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html,
@@ -12,36 +12,51 @@ body {
 }
 
 body {
-  @apply bg-brand-50 text-stone-900 antialiased font-sans;
+  @apply bg-ink-900 text-ink-100 antialiased;
+  font-family: var(--font-display), sans-serif;
 }
 
-h1, h2, h3 {
-  font-family: var(--font-serif), Georgia, serif;
+/* bg-white legacy override */
+.bg-white {
+  background-color: theme(colors.ink.800);
 }
 
 @layer components {
+  /* ── Buttons ──────────────────────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-bold uppercase tracking-widest transition disabled:opacity-40 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-lime text-ink-950 hover:bg-lime-dim;
   }
   .btn-secondary {
-    @apply btn bg-white border border-brand-200 text-stone-700 hover:bg-brand-50;
+    @apply btn bg-transparent border border-ink-500 text-ink-200 hover:border-ink-200 hover:text-ink-50;
   }
   .btn-danger {
-    @apply btn bg-red-600 text-white hover:bg-red-700;
+    @apply btn bg-danger text-white hover:bg-danger-dim;
   }
+
+  /* ── Form controls ────────────────────────────────────────────── */
   .input {
-    @apply block w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+    @apply block w-full border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-ink-100
+           focus:border-lime focus:outline-none focus:ring-0
+           placeholder:text-ink-400;
+    border-radius: 0;
   }
   .label {
-    @apply block text-sm font-medium text-stone-600 mb-1;
+    @apply block text-[10px] uppercase text-ink-400 mb-1.5;
+    font-family: var(--font-mono), monospace;
+    letter-spacing: 0.12em;
   }
+
+  /* ── Panel ────────────────────────────────────────────────────── */
   .card {
-    @apply rounded-xl border border-brand-200 bg-white shadow-sm;
+    @apply border border-ink-600 bg-ink-800;
   }
+
+  /* ── Badge ────────────────────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase;
+    letter-spacing: 0.08em;
   }
 }

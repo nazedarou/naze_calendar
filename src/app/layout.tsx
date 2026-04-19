@@ -1,16 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Syne, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const playfair = Playfair_Display({
+const mono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-serif",
+  variable: "--font-mono",
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -20,7 +22,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Fonk",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
   },
 };
 
@@ -28,12 +30,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#8B6649",
+  themeColor: "#111110",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${syne.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

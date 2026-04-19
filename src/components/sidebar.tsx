@@ -3,43 +3,50 @@ import { signOut } from "@/lib/auth";
 import type { SessionUser } from "@/lib/permissions";
 import { SidebarNav } from "./sidebar-nav";
 
-function ProfileIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" />
-    </svg>
-  );
-}
-
 export function Sidebar({ user }: { user: SessionUser }) {
   return (
-    <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-[#17120E] border-r border-[#251F18]">
-      {/* Logo */}
-      <div className="px-6 pt-7 pb-6 border-b border-[#251F18]">
-        <Link href="/" className="block">
-          <span className="font-serif text-[22px] text-[#E8D8C4]" style={{ letterSpacing: "0.18em" }}>
+    <aside className="hidden md:flex w-52 flex-shrink-0 flex-col bg-ink-950 border-r border-ink-600">
+      {/* Wordmark */}
+      <div className="px-6 pt-7 pb-6 border-b border-ink-600">
+        <Link href="/" className="block group">
+          <div
+            className="text-[32px] font-extrabold leading-none text-ink-100 tracking-tight"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             FONK
-          </span>
-          <span className="block text-[9px] uppercase text-[#4A3D30] mt-0.5" style={{ letterSpacing: "0.3em" }}>
-            Dashboard
-          </span>
+          </div>
+          <div
+            className="mt-2 text-[9px] uppercase text-ink-500"
+            style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.28em" }}
+          >
+            Interior Mgmt
+          </div>
         </Link>
       </div>
 
-      {/* Nav links */}
+      {/* Nav */}
       <SidebarNav user={user} />
 
       {/* User + sign out */}
-      <div className="px-3 pb-4 pt-3 border-t border-[#251F18] mt-auto space-y-0.5">
+      <div className="px-4 pb-5 pt-4 border-t border-ink-600 mt-auto space-y-1">
         <Link
           href="/profile"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-[#7A6A58] hover:bg-[#221C16] hover:text-[#C0A882] transition-colors"
+          className="flex items-center gap-2.5 px-2 py-2 text-xs text-ink-400 hover:text-ink-100 transition-colors group"
         >
-          <ProfileIcon />
-          <div className="flex-1 min-w-0">
-            <div className="truncate text-[#B8A492] text-xs">{user.name}</div>
-            <div className="text-[9px] uppercase text-[#4A3D30] tracking-wider">{user.role}</div>
+          <div className="w-6 h-6 border border-ink-600 group-hover:border-lime flex items-center justify-center shrink-0 transition-colors">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-ink-200 text-xs font-semibold">{user.name}</div>
+            <div
+              className="text-[9px] uppercase text-ink-500"
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+            >
+              {user.role}
+            </div>
           </div>
         </Link>
         <form
@@ -50,9 +57,10 @@ export function Sidebar({ user }: { user: SessionUser }) {
         >
           <button
             type="submit"
-            className="w-full text-left px-3 py-2 rounded-lg text-xs text-[#4A3D30] hover:bg-[#221C16] hover:text-[#7A6A58] transition-colors"
+            className="w-full text-left px-2 py-1.5 text-[11px] uppercase text-ink-500 hover:text-danger transition-colors"
+            style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
           >
-            Sign out
+            Sign out →
           </button>
         </form>
       </div>

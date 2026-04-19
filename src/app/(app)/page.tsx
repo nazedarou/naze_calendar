@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/permissions";
-import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
+import { formatDate, formatMoney } from "@/lib/format";
 
 const CONTRACT_STATUS_STYLE: Record<string, string> = {
-  DRAFT: "bg-slate-100 text-slate-700",
-  ACTIVE: "bg-green-100 text-green-800",
+  DRAFT:     "bg-slate-100 text-slate-700",
+  ACTIVE:    "bg-green-100 text-green-800",
   COMPLETED: "bg-blue-100 text-blue-800",
   CANCELLED: "bg-red-100 text-red-700",
 };
@@ -23,10 +23,7 @@ export default async function DashboardPage() {
 
   const eventFilter = owner
     ? { startAt: { gte: now, lte: weekEnd } }
-    : {
-        startAt: { gte: now, lte: weekEnd },
-        assignments: { some: { userId: user.id } },
-      };
+    : { startAt: { gte: now, lte: weekEnd }, assignments: { some: { userId: user.id } } };
 
   const [
     weekEvents,
@@ -67,15 +64,11 @@ export default async function DashboardPage() {
       ? prisma.contract.findMany({
           orderBy: { updatedAt: "desc" },
           take: 5,
-          include: {
-            client: true,
-            payments: { orderBy: { stage: "asc" } },
-          },
+          include: { client: true, payments: { orderBy: { stage: "asc" } } },
         })
       : Promise.resolve(null),
   ]);
 
-  // Revenue calculations
   let totalContracted = 0;
   let totalCollected = 0;
   if (revenueData) {
@@ -89,49 +82,112 @@ export default async function DashboardPage() {
   const grossProfit = totalCollected - totalCosts;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Welcome back, {user.name}</h1>
-        <p className="text-sm text-slate-500">Here's what's on your plate.</p>
+    <div className="space-y-0">
+
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <div className="flex items-end justify-between gap-4 pb-6 mb-8 border-b border-ink-600">
+        <div>
+          <div
+            className="text-[10px] uppercase text-ink-400 mb-2 tabular-nums"
+            style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.22em" }}
+          >
+            {format(now, "EEEE, d MMMM yyyy").toUpperCase()}
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-ink-100 leading-none">
+            {user.name.split(" ")[0].toUpperCase()}
+          </h1>
+        </div>
+        <Link href="/calendar/new" className="btn-primary shrink-0">
+          + Event
+        </Link>
       </div>
 
-      {/* Stat strip */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Clients" value={clientsCount} href="/clients" />
-        {owner && <Stat label="Active contracts" value={activeContractsCount} href="/contracts" />}
-        <Stat label="Overdue payments" value={overduePayments.length} tone="danger" />
-        <Stat label="Events this week" value={weekEvents.length} href="/calendar" />
+      {/* ── Stats strip ─────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 border border-ink-600">
+        <StatCell label="Clients" value={clientsCount} href="/clients" />
+        {owner
+          ? <StatCell label="Active" value={activeContractsCount} href="/contracts" border />
+          : <StatCell label="Active" value={activeContractsCount} border />}
+        <StatCell
+          label="Overdue"
+          value={overduePayments.length}
+          tone={overduePayments.length > 0 ? "danger" : undefined}
+          border
+        />
+        <StatCell label="This Week" value={weekEvents.length} href="/calendar" border />
       </div>
 
-      {/* Revenue summary — owner only */}
+      {/* ── Revenue strip (owner only) ───────────────────────────── */}
       {owner && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <RevenueStat label="Total contracted" value={totalContracted} />
-          <RevenueStat label="Collected" value={totalCollected} tone="positive" />
-          <RevenueStat label="Outstanding" value={totalOutstanding} tone={totalOutstanding > 0 ? "warn" : "positive"} />
-          <RevenueStat label="Gross profit" value={grossProfit} tone={grossProfit >= 0 ? "positive" : "danger"} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 border border-ink-600 border-t-0 mb-10">
+          <RevenueCell label="Contracted" value={totalContracted} />
+          <RevenueCell label="Collected" value={totalCollected} tone="ok" border />
+          <RevenueCell
+            label="Outstanding"
+            value={totalOutstanding}
+            tone={totalOutstanding > 0 ? "warn" : "ok"}
+            border
+          />
+          <RevenueCell
+            label="Gross Profit"
+            value={grossProfit}
+            tone={grossProfit >= 0 ? "ok" : "danger"}
+            border
+          />
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* This week's schedule */}
-        <section className="card p-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">This week</h2>
-            <Link href="/calendar/new" className="text-sm text-brand-600 hover:underline">+ New</Link>
+      {!owner && <div className="mb-10" />}
+
+      {/* ── This week + Overdue ──────────────────────────────────── */}
+      <div className="grid lg:grid-cols-2 border border-ink-600">
+
+        {/* This week */}
+        <section className="border-b lg:border-b-0 lg:border-r border-ink-600">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-ink-600">
+            <h2
+              className="text-[10px] uppercase text-ink-400"
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+            >
+              This Week
+            </h2>
+            <Link
+              href="/calendar/new"
+              className="text-[10px] uppercase text-lime hover:text-lime-dim transition-colors"
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
+            >
+              + Add
+            </Link>
           </div>
           {weekEvents.length === 0 ? (
-            <p className="text-sm text-slate-500">No events in the next 7 days.</p>
+            <p
+              className="px-5 py-5 text-sm text-ink-500"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              — No events in the next 7 days
+            </p>
           ) : (
-            <ul className="divide-y divide-slate-200">
+            <ul className="divide-y divide-ink-600">
               {weekEvents.map((e) => (
-                <li key={e.id} className="py-2.5 flex items-center justify-between gap-3">
-                  <div>
-                    <Link href={`/calendar/${e.id}`} className="font-medium text-brand-700 hover:underline">
+                <li key={e.id} className="px-5 py-3.5 flex items-start gap-4">
+                  <div
+                    className="shrink-0 text-[10px] uppercase text-ink-400 w-12 pt-0.5 tabular-nums"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {format(e.startAt, "MMM d").toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <Link
+                      href={`/calendar/${e.id}`}
+                      className="text-sm font-semibold text-ink-100 hover:text-lime transition-colors block truncate"
+                    >
                       {e.title}
                     </Link>
-                    <div className="text-xs text-slate-500">
-                      {formatDateTime(e.startAt)}
+                    <div
+                      className="text-[11px] text-ink-400 mt-0.5"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      {format(e.startAt, "HH:mm")}
                       {e.client ? ` · ${e.client.name}` : ""}
                     </div>
                   </div>
@@ -141,115 +197,245 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        {/* Overdue payments */}
-        <section className="card p-6">
-          <h2 className="text-lg font-semibold mb-3">Overdue payments</h2>
+        {/* Overdue */}
+        <section>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-ink-600">
+            <h2
+              className="text-[10px] uppercase text-ink-400"
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+            >
+              Overdue
+            </h2>
+            {overduePayments.length > 0 && (
+              <span
+                className="text-[10px] uppercase text-danger"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {overduePayments.length} unpaid
+              </span>
+            )}
+          </div>
           {overduePayments.length === 0 ? (
-            <p className="text-sm text-slate-500">Nothing overdue.</p>
+            <p
+              className="px-5 py-5 text-sm text-ink-500"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              — All clear
+            </p>
           ) : (
-            <ul className="divide-y divide-slate-200">
-              {overduePayments.map((p) => (
-                <li key={p.id} className="py-2.5 flex items-center justify-between gap-3">
-                  <div>
-                    <Link href={`/contracts/${p.contractId}`} className="font-medium text-brand-700 hover:underline">
-                      {p.contract.title} · Stage {p.stage}
-                    </Link>
-                    <div className="text-xs text-slate-500">
-                      {p.contract.client.name} · due {formatDate(p.dueDate)}
+            <ul className="divide-y divide-ink-600">
+              {overduePayments.map((p) => {
+                const days = p.dueDate
+                  ? Math.floor((now.getTime() - new Date(p.dueDate).getTime()) / 86_400_000)
+                  : 0;
+                return (
+                  <li key={p.id} className="px-5 py-3.5 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/contracts/${p.contractId}`}
+                        className="text-sm font-semibold text-ink-100 hover:text-lime transition-colors block truncate"
+                      >
+                        {p.contract.title}
+                      </Link>
+                      <div
+                        className="text-[11px] text-ink-400 mt-0.5"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {p.contract.client.name} · Stage {p.stage}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-sm font-semibold text-red-700">
-                    {formatMoney(p.amount)}
-                  </div>
-                </li>
-              ))}
+                    <div className="text-right shrink-0">
+                      <div
+                        className="text-sm font-bold text-danger tabular-nums"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {formatMoney(p.amount)}
+                      </div>
+                      <div
+                        className="text-[10px] text-ink-500 mt-0.5"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {days}d overdue
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>
-
-        {/* Recently active contracts — owner only */}
-        {owner && recentContracts && (
-          <section className="card p-6 lg:col-span-2">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold">Recently active contracts</h2>
-              <Link href="/contracts" className="text-sm text-brand-600 hover:underline">View all</Link>
-            </div>
-            {recentContracts.length === 0 ? (
-              <p className="text-sm text-slate-500">No contracts yet.</p>
-            ) : (
-              <ul className="divide-y divide-slate-200">
-                {recentContracts.map((c) => {
-                  const totalPaid = c.payments
-                    .filter((p) => p.status === "PAID")
-                    .reduce((acc, p) => acc + Number(p.amount), 0);
-                  const nextDue = c.payments.find((p) => p.status !== "PAID");
-                  const pct = Number(c.totalAmount) > 0
-                    ? Math.round((totalPaid / Number(c.totalAmount)) * 100)
-                    : 0;
-
-                  return (
-                    <li key={c.id} className="py-3 flex items-center gap-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Link href={`/contracts/${c.id}`} className="font-medium text-brand-700 hover:underline">
-                            {c.title}
-                          </Link>
-                          <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-slate-100"}`}>
-                            {c.status}
-                          </span>
-                        </div>
-                        <div className="text-xs text-slate-500 mt-0.5">
-                          {c.client.name} · {formatMoney(c.totalAmount)}
-                          {nextDue
-                            ? ` · next: Stage ${nextDue.stage} ${nextDue.dueDate ? formatDate(nextDue.dueDate) : "(not yet due)"}`
-                            : " · all paid"}
-                        </div>
-                        {/* Progress bar */}
-                        <div className="mt-2 flex items-center gap-2">
-                          <div className="flex-1 h-1.5 rounded-full bg-slate-100">
-                            <div
-                              className="h-1.5 rounded-full bg-brand-500"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <span className="text-[11px] text-slate-500 tabular-nums shrink-0">{pct}% collected</span>
-                        </div>
-                      </div>
-                      <div className="text-sm font-semibold text-slate-700 shrink-0">
-                        {formatMoney(totalPaid)}
-                        <span className="text-xs font-normal text-slate-400"> / {formatMoney(c.totalAmount)}</span>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
-        )}
       </div>
+
+      {/* ── Recent contracts (owner only) ───────────────────────── */}
+      {owner && recentContracts && (
+        <div className="border border-ink-600 border-t-0">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-ink-600">
+            <h2
+              className="text-[10px] uppercase text-ink-400"
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+            >
+              Recent Contracts
+            </h2>
+            <Link
+              href="/contracts"
+              className="text-[10px] uppercase text-lime hover:text-lime-dim transition-colors"
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
+            >
+              View all →
+            </Link>
+          </div>
+          {recentContracts.length === 0 ? (
+            <p
+              className="px-5 py-5 text-sm text-ink-500"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              — No contracts yet
+            </p>
+          ) : (
+            <ul className="divide-y divide-ink-600">
+              {recentContracts.map((c) => {
+                const totalPaid = c.payments
+                  .filter((p) => p.status === "PAID")
+                  .reduce((acc, p) => acc + Number(p.amount), 0);
+                const nextDue = c.payments.find((p) => p.status !== "PAID");
+                const pct = Number(c.totalAmount) > 0
+                  ? Math.round((totalPaid / Number(c.totalAmount)) * 100)
+                  : 0;
+
+                return (
+                  <li key={c.id} className="px-5 py-4 flex items-center gap-6">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-3 flex-wrap mb-1">
+                        <Link
+                          href={`/contracts/${c.id}`}
+                          className="font-bold text-sm text-ink-100 hover:text-lime transition-colors"
+                        >
+                          {c.title}
+                        </Link>
+                        <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-slate-100 text-slate-700"}`}>
+                          {c.status}
+                        </span>
+                      </div>
+                      <div
+                        className="text-[11px] text-ink-400 mb-2.5"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {c.client.name}
+                        {nextDue
+                          ? ` · next: Stage ${nextDue.stage}${nextDue.dueDate ? ` ${formatDate(nextDue.dueDate)}` : ""}`
+                          : " · all paid"}
+                      </div>
+                      {/* Progress bar — sharp */}
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-1 bg-ink-600">
+                          <div
+                            className={`h-1 transition-all ${
+                              pct >= 80 ? "bg-ok" : pct >= 40 ? "bg-lime" : "bg-warn"
+                            }`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span
+                          className="text-[10px] text-ink-500 shrink-0 tabular-nums"
+                          style={{ fontFamily: "var(--font-mono)" }}
+                        >
+                          {pct}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0 hidden sm:block">
+                      <div
+                        className="font-bold text-sm text-ink-100 tabular-nums"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        {formatMoney(totalPaid)}
+                      </div>
+                      <div
+                        className="text-[10px] text-ink-500"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        / {formatMoney(c.totalAmount)}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function Stat({ label, value, href, tone }: { label: string; value: number; href?: string; tone?: "danger" }) {
-  const body = (
-    <div className="card p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-2xl font-semibold ${tone === "danger" && value > 0 ? "text-red-600" : ""}`}>
+function StatCell({
+  label,
+  value,
+  href,
+  tone,
+  border,
+}: {
+  label: string;
+  value: number;
+  href?: string;
+  tone?: "danger";
+  border?: boolean;
+}) {
+  const inner = (
+    <div
+      className={`p-5 ${border ? "border-l border-ink-600" : ""} ${
+        href ? "hover:bg-ink-700 transition-colors cursor-pointer" : ""
+      }`}
+    >
+      <div
+        className="text-[9px] uppercase text-ink-400 mb-2"
+        style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+      >
+        {label}
+      </div>
+      <div
+        className={`text-4xl font-extrabold leading-none tabular-nums ${
+          tone === "danger" && value > 0 ? "text-danger" : "text-ink-100"
+        }`}
+      >
         {value}
       </div>
     </div>
   );
-  return href ? <Link href={href}>{body}</Link> : body;
+  return href ? <Link href={href}>{inner}</Link> : <div>{inner}</div>;
 }
 
-function RevenueStat({ label, value, tone }: { label: string; value: number; tone?: "positive" | "warn" | "danger" }) {
+function RevenueCell({
+  label,
+  value,
+  tone,
+  border,
+}: {
+  label: string;
+  value: number;
+  tone?: "ok" | "warn" | "danger";
+  border?: boolean;
+}) {
   return (
-    <div className="card p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className={`text-2xl font-semibold ${
-        tone === "positive" ? "text-green-700" : tone === "warn" ? "text-amber-700" : tone === "danger" ? "text-red-600" : ""
-      }`}>
+    <div className={`p-5 ${border ? "border-l border-ink-600" : ""}`}>
+      <div
+        className="text-[9px] uppercase text-ink-400 mb-2"
+        style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+      >
+        {label}
+      </div>
+      <div
+        className={`text-xl font-bold leading-none tabular-nums ${
+          tone === "ok"
+            ? "text-ok"
+            : tone === "warn"
+            ? "text-warn"
+            : tone === "danger"
+            ? "text-danger"
+            : "text-ink-100"
+        }`}
+        style={{ fontFamily: "var(--font-mono)" }}
+      >
         {formatMoney(value)}
       </div>
     </div>
