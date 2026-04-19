@@ -23,12 +23,13 @@ const contractSchema = z.object({
 });
 
 function calcMilestoneAmounts(total: number, stage1Amount: number) {
+  const remainder = total - stage1Amount;
   return [
     stage1Amount,
-    Math.round(total * 0.50 * 100) / 100,
-    Math.round(total * 0.35 * 100) / 100,
-    Math.round(total * 0.10 * 100) / 100,
-    Math.round(total * 0.05 * 100) / 100,
+    Math.round(remainder * 0.50 * 100) / 100,
+    Math.round(remainder * 0.35 * 100) / 100,
+    Math.round(remainder * 0.10 * 100) / 100,
+    Math.round(remainder * 0.05 * 100) / 100,
   ];
 }
 

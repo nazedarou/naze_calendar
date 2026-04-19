@@ -200,12 +200,13 @@ export function ContractForm({
           </div>
           {STAGE_LABELS.slice(1).map((label, i) => {
             const pct = STAGE_PERCENTAGES[i + 1]!;
-            const amount = total ? total * pct : null;
+            const remainder = (total != null && stage1Amount != null) ? total - stage1Amount : null;
+            const amount = remainder != null ? remainder * pct : null;
             return (
               <div key={label} className="card p-3 flex items-center justify-between gap-4 bg-slate-50">
                 <span className="text-sm text-slate-600">{label}</span>
                 <span className="text-sm text-slate-500 text-right tabular-nums">
-                  {(pct * 100).toFixed(0)}%{amount !== null ? ` = ${formatMoney(amount)}` : ""}
+                  {(pct * 100).toFixed(0)}% of remainder{amount !== null ? ` = ${formatMoney(amount)}` : ""}
                 </span>
               </div>
             );
