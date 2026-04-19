@@ -27,7 +27,7 @@ export default async function ContractsPage({ searchParams }: Props) {
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const skip = (page - 1) * PAGE_SIZE;
   const statusFilter: StatusFilter =
-    statusParam === "completed" ? "completed" : statusParam === "all" ? "all" : "ongoing";
+    statusParam === "ongoing" ? "ongoing" : statusParam === "completed" ? "completed" : "all";
 
   const where: Prisma.ContractWhereInput = {
     ...(owner ? {} : { assignments: { some: { userId: user.id } } }),

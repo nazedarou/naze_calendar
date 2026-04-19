@@ -88,6 +88,13 @@ export async function updateContract(id: string, formData: FormData) {
 
   const amounts = calcMilestoneAmounts(data.totalAmount, data.stage1Amount);
 
+  // Preserve amounts for already-paid milestones — they are historical payment records
+  const paidMilestones = await prisma.paymentMilestone.findMany({
+    where: { contractId: id, status: "PAID" },
+    select: { stage: true },
+  });
+  const paidStages = new Set(paidMilestones.map((m) => m.stage));
+
   await prisma.$transaction(async (tx) => {
     await tx.contract.update({
       where: { id },
@@ -102,15 +109,17 @@ export async function updateContract(id: string, formData: FormData) {
     });
 
     for (let idx = 0; idx < STAGE_LABELS.length; idx++) {
+      const stage = idx + 1;
       await tx.paymentMilestone.upsert({
-        where: { contractId_stage: { contractId: id, stage: idx + 1 } },
+        where: { contractId_stage: { contractId: id, stage } },
         update: {
           label: STAGE_LABELS[idx],
-          amount: new Prisma.Decimal(amounts[idx]),
+          // Don't overwrite amounts that have already been paid
+          ...(!paidStages.has(stage) && { amount: new Prisma.Decimal(amounts[idx]) }),
         },
         create: {
           contractId: id,
-          stage: idx + 1,
+          stage,
           label: STAGE_LABELS[idx],
           amount: new Prisma.Decimal(amounts[idx]),
         },

@@ -299,7 +299,7 @@ export default async function DashboardPage() {
                   .reduce((acc, p) => acc + Number(p.amount), 0);
                 const nextDue = c.payments.find((p) => p.status !== "PAID");
                 const pct = Number(c.totalAmount) > 0
-                  ? Math.round((totalPaid / Number(c.totalAmount)) * 100)
+                  ? Math.min(100, Math.round((totalPaid / Number(c.totalAmount)) * 100))
                   : 0;
 
                 return (
