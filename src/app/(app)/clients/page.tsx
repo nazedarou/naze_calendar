@@ -23,7 +23,7 @@ const CLIENT_STATUS_STYLE: Record<string, string> = {
   FIRST_APPOINTMENT:  "bg-blue-100 text-blue-700",
   SECOND_APPOINTMENT: "bg-amber-100 text-amber-700",
   PENDING:            "bg-purple-100 text-purple-700",
-  CLOSED:             "bg-warm-700 text-white",
+  CLOSED:             "bg-ok-ghost text-ok-dim",
 };
 
 const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "PENDING", "CLOSED"] as const;
