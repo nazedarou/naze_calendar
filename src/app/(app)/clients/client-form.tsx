@@ -15,6 +15,7 @@ const CLIENT_STATUS_OPTIONS: { value: ClientStatus; label: string }[] = [
   { value: "NEW",                label: "New" },
   { value: "FIRST_APPOINTMENT",  label: "First Appointment" },
   { value: "SECOND_APPOINTMENT", label: "Second Appointment" },
+  { value: "CLOSED",             label: "Closed (Engaged)" },
 ];
 
 export function ClientForm({

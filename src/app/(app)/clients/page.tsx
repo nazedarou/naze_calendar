@@ -13,15 +13,17 @@ const CLIENT_STATUS_LABEL: Record<string, string> = {
   NEW:                "New",
   FIRST_APPOINTMENT:  "1st Appt",
   SECOND_APPOINTMENT: "2nd Appt",
+  CLOSED:             "Closed",
 };
 
 const CLIENT_STATUS_STYLE: Record<string, string> = {
   NEW:                "bg-slate-100 text-slate-600",
   FIRST_APPOINTMENT:  "bg-blue-100 text-blue-700",
   SECOND_APPOINTMENT: "bg-amber-100 text-amber-700",
+  CLOSED:             "bg-ink-900 text-white",
 };
 
-const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT"] as const;
+const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "CLOSED"] as const;
 type ClientStatus = (typeof VALID_STATUSES)[number];
 
 export default async function ClientsPage({ searchParams }: Props) {
@@ -40,14 +42,14 @@ export default async function ClientsPage({ searchParams }: Props) {
   const scopeFilter = owner ? {} : { assignedToId: user.id };
 
   // Stats scoped to the same visibility as the table
-  const [totalCount, newCount, firstApptCount, secondApptCount, awaitingProposalCount, engagedCount] =
+  const [totalCount, newCount, firstApptCount, secondApptCount, awaitingProposalCount, closedCount] =
     await Promise.all([
       prisma.client.count({ where: scopeFilter }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "NEW" } }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "FIRST_APPOINTMENT" } }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "SECOND_APPOINTMENT" } }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "SECOND_APPOINTMENT", proposalSent: false } }),
-      prisma.client.count({ where: { ...scopeFilter, contracts: { some: {} } } }),
+      prisma.client.count({ where: { ...scopeFilter, clientStatus: "CLOSED" } }),
     ]);
 
   const where = {
@@ -107,10 +109,10 @@ export default async function ClientsPage({ searchParams }: Props) {
             className="text-[10px] uppercase text-stone-400 mb-2"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.22em" }}
           >
-            {owner ? "Client Overview" : "Your Clients"}
+            Client Overview
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight text-ink-900 leading-none">
-            {owner ? "CLIENTS" : "YOUR CLIENTS"}
+            CLIENTS
           </h1>
         </div>
         <Link href="/clients/new" className="btn-primary shrink-0">+ New client</Link>
@@ -122,7 +124,7 @@ export default async function ClientsPage({ searchParams }: Props) {
         <ClientStatCell label="New" value={newCount} active={statusFilter === "NEW"} href={filterLink("NEW")} border />
         <ClientStatCell label="1st Appt" value={firstApptCount} active={statusFilter === "FIRST_APPOINTMENT"} href={filterLink("FIRST_APPOINTMENT")} border />
         <ClientStatCell label="2nd Appt" value={secondApptCount} active={statusFilter === "SECOND_APPOINTMENT"} href={filterLink("SECOND_APPOINTMENT")} border />
-        <ClientStatCell label="Engaged" value={engagedCount} active={false} border />
+        <ClientStatCell label="Closed" value={closedCount} active={statusFilter === "CLOSED"} href={filterLink("CLOSED")} border />
       </div>
 
       {/* ── Awaiting proposal callout ─────────────────────────── */}

@@ -78,7 +78,14 @@ export async function createContract(formData: FormData) {
     },
   });
 
+  // Mark the client as CLOSED immediately since they now have a project
+  await prisma.client.update({
+    where: { id: data.clientId },
+    data: { clientStatus: "CLOSED" },
+  });
+
   revalidatePath("/contracts");
+  revalidatePath("/clients");
   redirect(`/contracts/${contract.id}`);
 }
 

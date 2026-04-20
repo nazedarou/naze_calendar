@@ -117,9 +117,6 @@ export default async function DashboardPage() {
             {user.name.split(" ")[0].toUpperCase()}
           </h1>
         </div>
-        <Link href="/calendar/new" className="btn-primary shrink-0">
-          + Event
-        </Link>
       </div>
 
       {/* ── Stats strip ─────────────────────────────────────────── */}

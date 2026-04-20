@@ -1,14 +1,24 @@
 import { prisma } from "@/lib/db";
 
 /**
- * Promotes clients from FIRST_APPOINTMENT → SECOND_APPOINTMENT
- * once their first calendar event has passed.
+ * Promotes clients based on activity:
+ * - Any client with a contract → CLOSED (terminal, overrides other statuses)
+ * - FIRST_APPOINTMENT with a past event → SECOND_APPOINTMENT (if not already CLOSED)
  * Safe to call on every page load — only touches eligible rows.
  */
 export async function autoPromoteClients() {
   const now = new Date();
 
-  // Find clients still at FIRST_APPOINTMENT who have at least one past event
+  // CLOSED: any non-CLOSED client that has at least one contract
+  await prisma.client.updateMany({
+    where: {
+      clientStatus: { not: "CLOSED" },
+      contracts: { some: {} },
+    },
+    data: { clientStatus: "CLOSED" },
+  });
+
+  // SECOND_APPOINTMENT: FIRST_APPOINTMENT clients with at least one past event
   const eligible = await prisma.client.findMany({
     where: {
       clientStatus: "FIRST_APPOINTMENT",

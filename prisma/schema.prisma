@@ -32,6 +32,7 @@ enum ClientStatus {
   NEW
   FIRST_APPOINTMENT
   SECOND_APPOINTMENT
+  CLOSED
 }
 
 
