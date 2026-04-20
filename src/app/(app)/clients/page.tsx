@@ -107,10 +107,10 @@ export default async function ClientsPage({ searchParams }: Props) {
             className="text-[10px] uppercase text-stone-400 mb-2"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.22em" }}
           >
-            Client Overview
+            {owner ? "Client Overview" : "Your Clients"}
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight text-ink-900 leading-none">
-            CLIENTS
+            {owner ? "CLIENTS" : "YOUR CLIENTS"}
           </h1>
         </div>
         <Link href="/clients/new" className="btn-primary shrink-0">+ New client</Link>
