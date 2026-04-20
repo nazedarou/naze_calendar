@@ -152,7 +152,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
           <div className="flex items-center gap-1 text-sm border border-brand-200 rounded-lg overflow-hidden">
             {(
               [
-                { key: "active", label: "Active" },
+                { key: "active", label: "Underway" },
                 { key: "all", label: "All" },
                 { key: "completed", label: "Completed" },
               ] as { key: ContractsFilter; label: string }[]

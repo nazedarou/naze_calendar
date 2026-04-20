@@ -185,6 +185,10 @@ export async function markPaymentDue(milestoneId: string) {
     data: { dueDate: new Date() },
     select: { contractId: true },
   });
+  await prisma.contract.updateMany({
+    where: { id: m.contractId, status: "DRAFT" },
+    data: { status: "ACTIVE" },
+  });
   revalidatePath(`/contracts/${m.contractId}`);
   revalidatePath("/calendar");
   revalidatePath("/");

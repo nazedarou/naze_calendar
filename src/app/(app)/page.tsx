@@ -119,8 +119,8 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 border border-warm-200 bg-white">
         <StatCell label="Clients" value={clientsCount} href="/clients" />
         {owner
-          ? <StatCell label="Active" value={activeContractsCount} href="/contracts" border />
-          : <StatCell label="Active" value={activeContractsCount} border />}
+          ? <StatCell label="Underway" value={activeContractsCount} href="/contracts" border />
+          : <StatCell label="Underway" value={activeContractsCount} border />}
         <StatCell
           label="Overdue"
           value={overduePayments.length}

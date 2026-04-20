@@ -434,7 +434,7 @@ async function EmployeesView({
 
                 <div>
                   <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">
-                    Active projects
+                    Underway projects
                   </h3>
                   {contracts.length === 0 ? (
                     <p className="text-sm text-warm-500">No assigned projects.</p>

@@ -19,6 +19,13 @@ const STATUS_BADGE: Record<string, string> = {
   CANCELLED: "bg-red-100 text-red-700",
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  DRAFT: "Draft",
+  ACTIVE: "Underway",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
+
 export default async function ContractsPage({ searchParams }: Props) {
   const user = await requireUser();
   const owner = isOwner(user);
@@ -139,7 +146,7 @@ export default async function ContractsPage({ searchParams }: Props) {
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-warm-500">{paid} / 5 paid</span>
                     <span className={`badge ${STATUS_BADGE[c.status] ?? "bg-warm-50"}`}>
-                      {c.status}
+                      {STATUS_LABEL[c.status] ?? c.status}
                     </span>
                   </div>
                 </Link>

@@ -139,7 +139,7 @@ export function ContractForm({
           ) : (
             <select id="status" name="status" defaultValue={displayStatus} className="input">
               <option value="DRAFT">Draft</option>
-              <option value="ACTIVE">Active</option>
+              <option value="ACTIVE">Underway</option>
               <option value="COMPLETED">Completed</option>
               <option value="CANCELLED">Cancelled</option>
             </select>
