@@ -200,7 +200,12 @@ export default async function ClientsPage({ searchParams }: Props) {
           <EmployeeFilter
             employees={employees}
             current={assignedToFilter}
-            buildUrl={(id) => buildParams({ assignedTo: id, page: null })}
+            params={{
+              ...(query && { q: query }),
+              ...(statusFilter && { status: statusFilter }),
+              ...(sort !== "name" && { sort }),
+              ...(dir !== "asc" && { dir }),
+            }}
           />
         )}
         {statusFilter && (

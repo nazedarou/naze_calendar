@@ -5,11 +5,20 @@ import { useRouter } from "next/navigation";
 type Props = {
   employees: { id: string; name: string }[];
   current: string | null;
-  buildUrl: (assignedTo: string | null) => string;
+  params: Record<string, string>;
 };
 
-export function EmployeeFilter({ employees, current, buildUrl }: Props) {
+export function EmployeeFilter({ employees, current, params }: Props) {
   const router = useRouter();
+
+  const buildUrl = (assignedTo: string | null) => {
+    const sp = new URLSearchParams(params);
+    sp.delete("page");
+    if (assignedTo) sp.set("assignedTo", assignedTo);
+    else sp.delete("assignedTo");
+    return `?${sp.toString()}`;
+  };
+
   return (
     <select
       value={current ?? ""}
