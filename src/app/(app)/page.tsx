@@ -463,7 +463,7 @@ function StatCell({
     >
       <div className="text-xs font-medium text-warm-500 mb-1.5">{label}</div>
       <div
-        className={`text-2xl font-semibold leading-none tabular-nums ${
+        className={`text-2xl font-normal leading-none tabular-nums ${
           tone === "danger" && value > 0 ? "text-danger" : "text-warm-800"
         }`}
       >
@@ -496,7 +496,7 @@ function RevenueCell({
             ? "text-warn"
             : tone === "danger"
             ? "text-danger"
-            : "text-warm-800"
+            : "text-warm-600"
         }`}
         style={{ fontFamily: "var(--font-mono)" }}
       >

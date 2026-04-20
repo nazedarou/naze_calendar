@@ -328,7 +328,7 @@ function ClientStatCell({
         {label}
       </div>
       <div
-        className={`text-2xl font-semibold leading-none tabular-nums ${
+        className={`text-2xl font-normal leading-none tabular-nums ${
           active ? "text-white" : "text-warm-800"
         }`}
       >
