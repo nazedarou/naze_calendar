@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/permissions";
 import { autoPromoteClients } from "@/lib/auto-promote";
 import { ProposalToggleButton } from "./proposal-toggle-button";
+import { EmployeeFilter } from "./employee-filter";
 
 const PAGE_SIZE = 20;
 
@@ -10,7 +11,7 @@ type SortKey = "name" | "status" | "assignedTo";
 type SortDir = "asc" | "desc";
 
 type Props = {
-  searchParams: Promise<{ q?: string; page?: string; status?: string; sort?: string; dir?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; status?: string; sort?: string; dir?: string; assignedTo?: string }>;
 };
 
 const CLIENT_STATUS_LABEL: Record<string, string> = {
@@ -44,18 +45,23 @@ export default async function ClientsPage({ searchParams }: Props) {
   const user = await requireUser();
   const owner = user.role === "OWNER";
   await autoPromoteClients();
-  const { q, page: pageParam, status: statusParam, sort: sortParam, dir: dirParam } = await searchParams;
+  const { q, page: pageParam, status: statusParam, sort: sortParam, dir: dirParam, assignedTo: assignedToParam } = await searchParams;
   const query = q?.trim() ?? "";
   const statusFilter = VALID_STATUSES.includes(statusParam as ClientStatus)
     ? (statusParam as ClientStatus)
     : null;
   const sort: SortKey = VALID_SORTS.includes(sortParam as SortKey) ? (sortParam as SortKey) : "name";
   const dir: SortDir = dirParam === "desc" ? "desc" : "asc";
+  const assignedToFilter = owner && assignedToParam ? assignedToParam : null;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const skip = (page - 1) * PAGE_SIZE;
 
   // Scope all queries to assigned clients for employees
   const scopeFilter = owner ? {} : { assignedToId: user.id };
+
+  const employees = owner
+    ? await prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } })
+    : [];
 
   // Stats scoped to the same visibility as the table
   const [totalCount, newCount, firstApptCount, secondApptCount, pendingCount, awaitingProposalCount, closedCount] =
@@ -71,6 +77,7 @@ export default async function ClientsPage({ searchParams }: Props) {
 
   const where = {
     ...scopeFilter,
+    ...(assignedToFilter ? { assignedToId: assignedToFilter } : {}),
     ...(statusFilter ? { clientStatus: statusFilter } : {}),
     ...(query
       ? {
@@ -107,6 +114,7 @@ export default async function ClientsPage({ searchParams }: Props) {
     const sp = new URLSearchParams();
     if (query) sp.set("q", query);
     if (statusFilter) sp.set("status", statusFilter);
+    if (assignedToFilter) sp.set("assignedTo", assignedToFilter);
     if (sort !== "name") sp.set("sort", sort);
     if (dir !== "asc") sp.set("dir", dir);
     for (const [k, v] of Object.entries(overrides)) {
@@ -178,6 +186,7 @@ export default async function ClientsPage({ searchParams }: Props) {
           {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
           {sort !== "name" && <input type="hidden" name="sort" value={sort} />}
           {dir !== "asc" && <input type="hidden" name="dir" value={dir} />}
+          {assignedToFilter && <input type="hidden" name="assignedTo" value={assignedToFilter} />}
           <input
             name="q"
             type="search"
@@ -187,6 +196,13 @@ export default async function ClientsPage({ searchParams }: Props) {
             autoComplete="off"
           />
         </form>
+        {owner && employees.length > 0 && (
+          <EmployeeFilter
+            employees={employees}
+            current={assignedToFilter}
+            buildUrl={(id) => buildParams({ assignedTo: id, page: null })}
+          />
+        )}
         {statusFilter && (
           <Link
             href={filterLink(null)}
@@ -194,6 +210,15 @@ export default async function ClientsPage({ searchParams }: Props) {
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
           >
             × Clear filter
+          </Link>
+        )}
+        {assignedToFilter && (
+          <Link
+            href={buildParams({ assignedTo: null, page: null })}
+            className="text-[10px] uppercase text-warm-500 hover:text-warm-800 transition-colors border border-warm-200 px-3 py-2"
+            style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
+          >
+            × Clear employee
           </Link>
         )}
       </div>
