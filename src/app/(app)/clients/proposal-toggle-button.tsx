@@ -17,10 +17,10 @@ export function ProposalToggleButton({
           compact
             ? sent
               ? "text-[10px] uppercase tabular-nums px-2 py-1 border border-green-400 text-green-700 bg-green-50 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
-              : "text-[10px] uppercase tabular-nums px-2 py-1 border border-warm-200 text-warm-500 hover:border-warm-900 hover:text-warm-900 transition-colors"
+              : "text-[10px] uppercase tabular-nums px-2 py-1 border border-warm-200 text-warm-500 hover:border-warm-600 hover:text-warm-800 transition-colors"
             : sent
               ? "w-full flex items-center justify-between px-4 py-3 border border-green-400 bg-green-50 text-green-800 text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
-              : "w-full flex items-center justify-between px-4 py-3 border border-warm-200 bg-white text-warm-600 text-sm font-medium hover:border-warm-900 hover:text-warm-900 transition-colors"
+              : "w-full flex items-center justify-between px-4 py-3 border border-warm-200 bg-white text-warm-600 text-sm font-medium hover:border-warm-600 hover:text-warm-800 transition-colors"
         }
         style={{ fontFamily: compact ? "var(--font-mono)" : undefined }}
         title={sent ? "Click to undo — mark proposal as not sent" : "Mark proposal as sent"}

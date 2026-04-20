@@ -23,7 +23,7 @@ const CLIENT_STATUS_STYLE: Record<string, string> = {
   FIRST_APPOINTMENT:  "bg-blue-100 text-blue-700",
   SECOND_APPOINTMENT: "bg-amber-100 text-amber-700",
   PENDING:            "bg-purple-100 text-purple-700",
-  CLOSED:             "bg-warm-900 text-white",
+  CLOSED:             "bg-warm-700 text-white",
 };
 
 const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "PENDING", "CLOSED"] as const;
@@ -109,8 +109,8 @@ export default async function ClientsPage({ searchParams }: Props) {
       {/* ── Header ───────────────────────────────────────────── */}
       <div className="flex items-end justify-between gap-4 pb-6 mb-8 border-b border-warm-200">
         <div>
-          <p className="text-sm text-warm-400 mb-1">Client overview</p>
-          <h1 className="text-3xl font-semibold text-warm-900" style={{ fontFamily: "var(--font-display)" }}>
+          <p className="text-sm text-warm-500 mb-1">Client overview</p>
+          <h1 className="text-3xl font-semibold text-warm-800" style={{ fontFamily: "var(--font-display)" }}>
             Clients
           </h1>
         </div>
@@ -161,7 +161,7 @@ export default async function ClientsPage({ searchParams }: Props) {
         {statusFilter && (
           <Link
             href={filterLink(null)}
-            className="text-[10px] uppercase text-warm-500 hover:text-warm-900 transition-colors border border-warm-200 px-3 py-2"
+            className="text-[10px] uppercase text-warm-500 hover:text-warm-800 transition-colors border border-warm-200 px-3 py-2"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
           >
             × Clear filter
@@ -172,7 +172,7 @@ export default async function ClientsPage({ searchParams }: Props) {
       {/* ── Table ────────────────────────────────────────────── */}
       {total === 0 ? (
         <div className="border border-warm-200 bg-white p-8 text-center">
-          <p className="text-sm text-warm-400" style={{ fontFamily: "var(--font-mono)" }}>
+          <p className="text-sm text-warm-500" style={{ fontFamily: "var(--font-mono)" }}>
             {query
               ? `No clients matching "${query}".`
               : statusFilter
@@ -188,7 +188,7 @@ export default async function ClientsPage({ searchParams }: Props) {
       ) : (
         <>
           <p
-            className="mb-3 text-[10px] uppercase text-warm-400"
+            className="mb-3 text-[10px] uppercase text-warm-500"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.15em" }}
           >
             {query ? `${total} result${total !== 1 ? "s" : ""} for "${query}" · ` : ""}
@@ -201,37 +201,37 @@ export default async function ClientsPage({ searchParams }: Props) {
               <thead className="bg-warm-50 text-left">
                 <tr>
                   <th
-                    className="px-4 py-3 text-[9px] uppercase text-warm-400"
+                    className="px-4 py-3 text-[9px] uppercase text-warm-500"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
                     Name
                   </th>
                   <th
-                    className="px-4 py-3 text-[9px] uppercase text-warm-400"
+                    className="px-4 py-3 text-[9px] uppercase text-warm-500"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
                     Status
                   </th>
                   <th
-                    className="px-4 py-3 text-[9px] uppercase text-warm-400 hidden sm:table-cell"
+                    className="px-4 py-3 text-[9px] uppercase text-warm-500 hidden sm:table-cell"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
                     Email
                   </th>
                   <th
-                    className="px-4 py-3 text-[9px] uppercase text-warm-400 hidden md:table-cell"
+                    className="px-4 py-3 text-[9px] uppercase text-warm-500 hidden md:table-cell"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
                     Assigned To
                   </th>
                   <th
-                    className="px-4 py-3 text-[9px] uppercase text-warm-400 hidden sm:table-cell"
+                    className="px-4 py-3 text-[9px] uppercase text-warm-500 hidden sm:table-cell"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
                     Project
                   </th>
                   <th
-                    className="px-4 py-3 text-[9px] uppercase text-warm-400"
+                    className="px-4 py-3 text-[9px] uppercase text-warm-500"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
                     Proposal
@@ -244,7 +244,7 @@ export default async function ClientsPage({ searchParams }: Props) {
                   return (
                     <tr key={c.id} className="hover:bg-warm-50 transition-colors">
                       <td className="px-4 py-3 font-semibold">
-                        <Link href={`/clients/${c.id}`} className="text-warm-900 hover:text-warm-500 transition-colors">
+                        <Link href={`/clients/${c.id}`} className="text-warm-800 hover:text-warm-500 transition-colors">
                           {c.name}
                         </Link>
                       </td>
@@ -263,7 +263,7 @@ export default async function ClientsPage({ searchParams }: Props) {
                         {contract ? (
                           <Link
                             href={`/contracts/${contract.id}`}
-                            className="text-warm-900 hover:text-warm-500 transition-colors truncate max-w-[160px] block"
+                            className="text-warm-800 hover:text-warm-500 transition-colors truncate max-w-[160px] block"
                           >
                             {contract.title}
                           </Link>
@@ -284,7 +284,7 @@ export default async function ClientsPage({ searchParams }: Props) {
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <span
-                className="text-[10px] uppercase text-warm-400"
+                className="text-[10px] uppercase text-warm-500"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 Page {page} of {totalPages}
@@ -321,15 +321,15 @@ function ClientStatCell({
   const inner = (
     <div
       className={`p-4 sm:p-5 ${border ? "border-l border-warm-200" : ""} ${
-        active ? "bg-warm-900" : href ? "hover:bg-warm-50 transition-colors cursor-pointer" : ""
+        active ? "bg-brand-600" : href ? "hover:bg-warm-50 transition-colors cursor-pointer" : ""
       }`}
     >
-      <div className={`text-xs font-medium mb-1.5 ${active ? "text-warm-300" : "text-warm-400"}`}>
+      <div className={`text-xs font-medium mb-1.5 ${active ? "text-warm-300" : "text-warm-500"}`}>
         {label}
       </div>
       <div
         className={`text-2xl font-semibold leading-none tabular-nums ${
-          active ? "text-white" : "text-warm-900"
+          active ? "text-white" : "text-warm-800"
         }`}
       >
         {value}

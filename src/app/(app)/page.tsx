@@ -106,10 +106,10 @@ export default async function DashboardPage() {
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="flex items-end justify-between gap-4 pb-6 mb-8 border-b border-warm-200">
         <div>
-          <p className="text-sm text-warm-400 mb-1">
+          <p className="text-sm text-warm-500 mb-1">
             {new Date(now.toLocaleString("en-US", { timeZone: "Asia/Singapore" })).toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
-          <h1 className="text-3xl font-semibold text-warm-900" style={{ fontFamily: "var(--font-display)" }}>
+          <h1 className="text-3xl font-semibold text-warm-800" style={{ fontFamily: "var(--font-display)" }}>
             {(() => { const h = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Singapore" })).getHours(); return `Good ${h < 12 ? "morning" : h < 18 ? "afternoon" : "evening"}` })()}, {user.name.split(" ")[0]}
           </h1>
         </div>
@@ -159,14 +159,14 @@ export default async function DashboardPage() {
         <section className="border-b lg:border-b-0 lg:border-r border-warm-200">
           <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-warm-400"
+              className="text-[10px] uppercase text-warm-500"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               This Week
             </h2>
             <Link
               href="/calendar/new"
-              className="text-[10px] uppercase text-warm-400 hover:text-warm-900 transition-colors"
+              className="text-[10px] uppercase text-warm-500 hover:text-warm-800 transition-colors"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
             >
               + Add
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
           </div>
           {weekEvents.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-warm-400"
+              className="px-5 py-5 text-sm text-warm-500"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — No events in the next 7 days
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
               {weekEvents.map((e) => (
                 <li key={e.id} className="px-5 py-3.5 flex items-start gap-4">
                   <div
-                    className="shrink-0 text-[10px] uppercase text-warm-400 w-12 pt-0.5 tabular-nums"
+                    className="shrink-0 text-[10px] uppercase text-warm-500 w-12 pt-0.5 tabular-nums"
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
                     {format(e.startAt, "MMM d").toUpperCase()}
@@ -192,12 +192,12 @@ export default async function DashboardPage() {
                   <div className="min-w-0">
                     <Link
                       href={`/calendar/${e.id}`}
-                      className="text-sm font-semibold text-warm-900 hover:text-warm-500 transition-colors block truncate"
+                      className="text-sm font-semibold text-warm-800 hover:text-warm-500 transition-colors block truncate"
                     >
                       {e.title}
                     </Link>
                     <div
-                      className="text-[11px] text-warm-400 mt-0.5"
+                      className="text-[11px] text-warm-500 mt-0.5"
                       style={{ fontFamily: "var(--font-mono)" }}
                     >
                       {format(e.startAt, "HH:mm")}
@@ -214,7 +214,7 @@ export default async function DashboardPage() {
         <section className="border-b lg:border-b-0 lg:border-r border-warm-200">
           <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-warm-400"
+              className="text-[10px] uppercase text-warm-500"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               Overdue
@@ -230,7 +230,7 @@ export default async function DashboardPage() {
           </div>
           {overduePayments.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-warm-400"
+              className="px-5 py-5 text-sm text-warm-500"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — All clear
@@ -246,12 +246,12 @@ export default async function DashboardPage() {
                     <div className="min-w-0">
                       <Link
                         href={`/contracts/${p.contractId}`}
-                        className="text-sm font-semibold text-warm-900 hover:text-warm-500 transition-colors block truncate"
+                        className="text-sm font-semibold text-warm-800 hover:text-warm-500 transition-colors block truncate"
                       >
                         {p.contract.title}
                       </Link>
                       <div
-                        className="text-[11px] text-warm-400 mt-0.5"
+                        className="text-[11px] text-warm-500 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {p.contract.client.name} · Stage {p.stage}
@@ -265,7 +265,7 @@ export default async function DashboardPage() {
                         {formatMoney(p.amount)}
                       </div>
                       <div
-                        className="text-[10px] text-warm-400 mt-0.5"
+                        className="text-[10px] text-warm-500 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {days}d overdue
@@ -282,7 +282,7 @@ export default async function DashboardPage() {
         <section>
           <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-warm-400"
+              className="text-[10px] uppercase text-warm-500"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               Proposal Reminders
@@ -298,7 +298,7 @@ export default async function DashboardPage() {
           </div>
           {proposalReminders.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-warm-400"
+              className="px-5 py-5 text-sm text-warm-500"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — All clear
@@ -315,12 +315,12 @@ export default async function DashboardPage() {
                     <div className="min-w-0">
                       <Link
                         href={`/clients/${c.id}`}
-                        className="text-sm font-semibold text-warm-900 hover:text-warm-500 transition-colors block truncate"
+                        className="text-sm font-semibold text-warm-800 hover:text-warm-500 transition-colors block truncate"
                       >
                         {c.name}
                       </Link>
                       <div
-                        className="text-[11px] text-warm-400 mt-0.5"
+                        className="text-[11px] text-warm-500 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         2nd meeting {format(secondEvent.startAt, "d MMM").toUpperCase()}
@@ -345,14 +345,14 @@ export default async function DashboardPage() {
         <div className="border border-warm-200 border-t-0 bg-white">
           <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-warm-400"
+              className="text-[10px] uppercase text-warm-500"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               Recent Projects
             </h2>
             <Link
               href="/contracts"
-              className="text-[10px] uppercase text-warm-400 hover:text-warm-900 transition-colors"
+              className="text-[10px] uppercase text-warm-500 hover:text-warm-800 transition-colors"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
             >
               View all →
@@ -360,7 +360,7 @@ export default async function DashboardPage() {
           </div>
           {recentContracts.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-warm-400"
+              className="px-5 py-5 text-sm text-warm-500"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — No projects yet
@@ -382,7 +382,7 @@ export default async function DashboardPage() {
                       <div className="flex items-center gap-3 flex-wrap mb-1">
                         <Link
                           href={`/contracts/${c.id}`}
-                          className="font-bold text-sm text-warm-900 hover:text-warm-500 transition-colors"
+                          className="font-bold text-sm text-warm-800 hover:text-warm-500 transition-colors"
                         >
                           {c.title}
                         </Link>
@@ -391,7 +391,7 @@ export default async function DashboardPage() {
                         </span>
                       </div>
                       <div
-                        className="text-[11px] text-warm-400 mb-2.5"
+                        className="text-[11px] text-warm-500 mb-2.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {c.client.name}
@@ -404,13 +404,13 @@ export default async function DashboardPage() {
                         <div className="flex-1 h-1 bg-warm-100">
                           <div
                             className={`h-1 transition-all ${
-                              pct >= 80 ? "bg-ok" : pct >= 40 ? "bg-warm-900" : "bg-warn"
+                              pct >= 80 ? "bg-ok" : pct >= 40 ? "bg-warm-600" : "bg-warn"
                             }`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>
                         <span
-                          className="text-[10px] text-warm-400 shrink-0 tabular-nums"
+                          className="text-[10px] text-warm-500 shrink-0 tabular-nums"
                           style={{ fontFamily: "var(--font-mono)" }}
                         >
                           {pct}%
@@ -419,13 +419,13 @@ export default async function DashboardPage() {
                     </div>
                     <div className="text-right shrink-0 hidden sm:block">
                       <div
-                        className="font-bold text-sm text-warm-900 tabular-nums"
+                        className="font-bold text-sm text-warm-800 tabular-nums"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {formatMoney(totalPaid)}
                       </div>
                       <div
-                        className="text-[10px] text-warm-400"
+                        className="text-[10px] text-warm-500"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         / {formatMoney(c.totalAmount)}
@@ -461,10 +461,10 @@ function StatCell({
         href ? "hover:bg-warm-50 transition-colors cursor-pointer" : ""
       }`}
     >
-      <div className="text-xs font-medium text-warm-400 mb-1.5">{label}</div>
+      <div className="text-xs font-medium text-warm-500 mb-1.5">{label}</div>
       <div
         className={`text-2xl font-semibold leading-none tabular-nums ${
-          tone === "danger" && value > 0 ? "text-danger" : "text-warm-900"
+          tone === "danger" && value > 0 ? "text-danger" : "text-warm-800"
         }`}
       >
         {value}
@@ -487,7 +487,7 @@ function RevenueCell({
 }) {
   return (
     <div className={`p-5 ${border ? "border-l border-warm-200" : ""}`}>
-      <div className="text-xs font-medium text-warm-400 mb-1.5">{label}</div>
+      <div className="text-xs font-medium text-warm-500 mb-1.5">{label}</div>
       <div
         className={`text-lg font-semibold leading-none tabular-nums ${
           tone === "ok"
@@ -496,7 +496,7 @@ function RevenueCell({
             ? "text-warn"
             : tone === "danger"
             ? "text-danger"
-            : "text-warm-900"
+            : "text-warm-800"
         }`}
         style={{ fontFamily: "var(--font-mono)" }}
       >

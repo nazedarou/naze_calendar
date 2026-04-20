@@ -173,7 +173,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
             <Link href={`/calendar/${e.id}`} className="flex items-start gap-3 py-3 border-b border-warm-50 last:border-0">
               <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-brand-500 mt-1.5" />
               <div className="min-w-0">
-                <div className="font-medium text-warm-900 truncate">{e.title}</div>
+                <div className="font-medium text-warm-800 truncate">{e.title}</div>
                 <div className="text-xs text-warm-500 mt-0.5">
                   {timeStr}{e.client ? ` · ${e.client.name}` : ""}{assigneeNames ? ` · ${assigneeNames}` : ""}
                 </div>
@@ -202,7 +202,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
             <Link href={`/contracts/${p.contractId}`} className="flex items-start gap-3 py-3 border-b border-warm-50 last:border-0">
               <div className={`shrink-0 h-2 w-2 rounded-full mt-1.5 ${paymentColorDot}`} />
               <div className="min-w-0">
-                <div className="font-medium text-warm-900 truncate">
+                <div className="font-medium text-warm-800 truncate">
                   {p.contract.client.name} · Stage {p.stage} {p.label}
                 </div>
                 <div className="text-xs text-warm-500 mt-0.5">
@@ -246,7 +246,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
             const isToday = isSameDay(day, new Date());
             return (
               <div key={day.toISOString()} className="px-4 py-3">
-                <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isToday ? "text-brand-600" : "text-warm-400"}`}>
+                <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isToday ? "text-brand-600" : "text-warm-500"}`}>
                   {formatInTimeZone(day, TZ, "EEE, MMM d")}
                   {isToday && <span className="ml-2 text-[10px] bg-brand-600 text-white rounded-full px-1.5 py-0.5">Today</span>}
                 </div>
@@ -278,7 +278,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
               <div
                 key={day.toISOString()}
                 className={`min-h-[110px] border-t border-l border-warm-100 p-1.5 text-xs ${
-                  inMonth ? "bg-white" : "bg-warm-50 text-warm-400"
+                  inMonth ? "bg-white" : "bg-warm-50 text-warm-500"
                 }`}
               >
                 <div className={`mb-1 ${isToday ? "font-semibold text-brand-700" : ""}`}>
@@ -350,7 +350,7 @@ async function EmployeesView({
         <input type="hidden" name="view" value="employees" />
         <input type="hidden" name="month" value={monthParam} />
         <div className="relative flex-1 max-w-xs">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
           </svg>
           <input

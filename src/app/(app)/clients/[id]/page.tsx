@@ -67,7 +67,7 @@ export default async function ClientDetailPage({ params }: Props) {
             submitLabel="Save changes"
           />
           <div className="mt-4 border-t pt-4">
-            <p className="text-xs text-warm-400 mb-2" style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
+            <p className="text-xs text-warm-500 mb-2" style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
               PROPOSAL
             </p>
             <ProposalToggleButton clientId={client.id} sent={client.proposalSent} />

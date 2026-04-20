@@ -77,10 +77,10 @@ export function SidebarNav({ user }: { user: SessionUser }) {
             className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${
               active
                 ? "bg-brand-50 text-brand-700 font-semibold"
-                : "text-warm-500 hover:text-warm-900 hover:bg-warm-50 font-medium"
+                : "text-warm-500 hover:text-warm-800 hover:bg-warm-50 font-medium"
             }`}
           >
-            <span className={active ? "text-brand-500" : "text-warm-400"}>
+            <span className={active ? "text-brand-500" : "text-warm-500"}>
               <Icon />
             </span>
             <span>{label}</span>

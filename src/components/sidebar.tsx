@@ -20,7 +20,7 @@ export function Sidebar({ user }: { user: SessionUser }) {
       <div className="px-4 pb-5 pt-4 border-t border-warm-100 mt-auto space-y-1">
         <Link
           href="/profile"
-          className="flex items-center gap-2.5 px-2 py-2 rounded-md text-xs text-warm-500 hover:text-warm-900 hover:bg-warm-50 transition-colors group"
+          className="flex items-center gap-2.5 px-2 py-2 rounded-md text-xs text-warm-500 hover:text-warm-800 hover:bg-warm-50 transition-colors group"
         >
           <div className="w-7 h-7 rounded-full bg-warm-100 border border-warm-200 flex items-center justify-center shrink-0 text-warm-600 group-hover:border-brand-300 transition-colors">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -30,7 +30,7 @@ export function Sidebar({ user }: { user: SessionUser }) {
           </div>
           <div className="min-w-0">
             <div className="truncate text-warm-800 text-xs font-semibold">{user.name}</div>
-            <div className="text-[10px] text-warm-400 capitalize">{user.role.toLowerCase()}</div>
+            <div className="text-[10px] text-warm-500 capitalize">{user.role.toLowerCase()}</div>
           </div>
         </Link>
         <form
@@ -41,7 +41,7 @@ export function Sidebar({ user }: { user: SessionUser }) {
         >
           <button
             type="submit"
-            className="w-full text-left px-2 py-1.5 text-xs text-warm-400 hover:text-danger transition-colors rounded-md"
+            className="w-full text-left px-2 py-1.5 text-xs text-warm-500 hover:text-danger transition-colors rounded-md"
           >
             Sign out
           </button>

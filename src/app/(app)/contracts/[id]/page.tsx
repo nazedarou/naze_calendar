@@ -94,7 +94,7 @@ export default async function ContractDetailPage({ params }: Props) {
                       <span className={`badge ${STATUS_BADGE["PAID"]}`}>PAID</span>
                       <form action={togglePayment.bind(null, p.id)}>
                         <input type="hidden" name="paid" value="false" />
-                        <button type="submit" className="text-xs text-warm-400 hover:text-warm-500 underline">
+                        <button type="submit" className="text-xs text-warm-500 hover:text-warm-700 underline">
                           Undo
                         </button>
                       </form>
@@ -107,7 +107,7 @@ export default async function ContractDetailPage({ params }: Props) {
                         <button type="submit" className="btn-primary text-xs">Paid</button>
                       </form>
                       <form action={clearPaymentDue.bind(null, p.id)}>
-                        <button type="submit" className="text-xs text-warm-400 hover:text-warm-500 underline">
+                        <button type="submit" className="text-xs text-warm-500 hover:text-warm-700 underline">
                           Undo
                         </button>
                       </form>
@@ -162,7 +162,7 @@ export default async function ContractDetailPage({ params }: Props) {
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold">{formatMoney(c.amount)}</span>
                   <form action={deleteProjectCost.bind(null, c.id)}>
-                    <button type="submit" className="text-xs text-warm-400 hover:text-red-500 transition-colors">
+                    <button type="submit" className="text-xs text-warm-500 hover:text-red-500 transition-colors">
                       Remove
                     </button>
                   </form>

@@ -77,7 +77,7 @@ export function BottomNav({ user }: { user: SessionUser }) {
             key={href}
             href={href}
             className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-colors ${
-              active ? "text-brand-600" : "text-warm-400"
+              active ? "text-brand-600" : "text-warm-500"
             }`}
           >
             <Icon />

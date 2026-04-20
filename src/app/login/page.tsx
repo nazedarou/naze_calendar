@@ -18,13 +18,13 @@ export default async function LoginPage({ searchParams }: Props) {
         {/* Wordmark */}
         <div className="mb-10">
           <div
-            className="text-[42px] font-extrabold leading-none text-warm-900 tracking-tight mb-2"
+            className="text-[42px] font-extrabold leading-none text-warm-800 tracking-tight mb-2"
             style={{ fontFamily: "var(--font-display)" }}
           >
             FONK
           </div>
           <div
-            className="text-[9px] uppercase text-warm-400"
+            className="text-[9px] uppercase text-warm-500"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.28em" }}
           >
             Interior Management
