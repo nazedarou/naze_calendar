@@ -8,24 +8,8 @@ export function Sidebar({ user }: { user: SessionUser }) {
     <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-warm-50 border-r border-warm-200">
       {/* Logo */}
       <div className="px-6 pt-7 pb-5 border-b border-warm-200">
-        <Link href="/" className="block group">
-          <div className="flex items-baseline gap-0.5">
-            <span
-              className="text-[42px] leading-none font-light italic"
-              style={{ fontFamily: "var(--font-display)", color: "#C24040" }}
-            >
-              F
-            </span>
-            <span
-              className="text-[28px] leading-none font-light"
-              style={{ fontFamily: "var(--font-display)", color: "#C24040", marginBottom: "6px" }}
-            >
-              .
-            </span>
-          </div>
-          <div className="mt-1 text-[10px] text-warm-400 tracking-widest uppercase font-medium">
-            Interior Studio
-          </div>
+        <Link href="/" className="block">
+          <img src="/logo.png" alt="Fonk" className="h-14 w-auto" />
         </Link>
       </div>
 
