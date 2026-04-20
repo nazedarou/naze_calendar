@@ -211,6 +211,12 @@ export async function togglePayment(milestoneId: string, formData: FormData) {
         : { status: "PENDING", paidDate: null },
     select: { contractId: true },
   });
+  if (paid === "true") {
+    await prisma.contract.updateMany({
+      where: { id: m.contractId, status: "DRAFT" },
+      data: { status: "ACTIVE" },
+    });
+  }
   revalidatePath(`/contracts/${m.contractId}`);
   revalidatePath("/");
   revalidatePath("/contracts");

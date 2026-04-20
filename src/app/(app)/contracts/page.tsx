@@ -29,6 +29,15 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function ContractsPage({ searchParams }: Props) {
   const user = await requireUser();
   const owner = isOwner(user);
+
+  // Promote any DRAFT contracts that already have a due payment milestone
+  await prisma.contract.updateMany({
+    where: {
+      status: "DRAFT",
+      payments: { some: { dueDate: { not: null } } },
+    },
+    data: { status: "ACTIVE" },
+  });
   const { q, page: pageParam, status: statusParam } = await searchParams;
   const query = q?.trim() ?? "";
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
