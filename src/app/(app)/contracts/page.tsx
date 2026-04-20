@@ -87,7 +87,7 @@ export default async function ContractsPage({ searchParams }: Props) {
             name="q"
             type="search"
             defaultValue={query}
-            placeholder="Search by title or client…"
+            placeholder="Search by address or client…"
             className="input"
             autoComplete="off"
           />

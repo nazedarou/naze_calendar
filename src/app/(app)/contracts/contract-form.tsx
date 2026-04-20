@@ -66,7 +66,7 @@ export function ContractForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="label">Title</label>
+          <label className="label">Address</label>
           {readOnly ? (
             <p className="input bg-warm-50 text-warm-500">{initial?.title ?? ""}</p>
           ) : (
