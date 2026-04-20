@@ -6,8 +6,11 @@ import { ProposalToggleButton } from "./proposal-toggle-button";
 
 const PAGE_SIZE = 20;
 
+type SortKey = "name" | "status" | "assignedTo";
+type SortDir = "asc" | "desc";
+
 type Props = {
-  searchParams: Promise<{ q?: string; page?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; status?: string; sort?: string; dir?: string }>;
 };
 
 const CLIENT_STATUS_LABEL: Record<string, string> = {
@@ -29,15 +32,25 @@ const CLIENT_STATUS_STYLE: Record<string, string> = {
 const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "PENDING", "CLOSED"] as const;
 type ClientStatus = (typeof VALID_STATUSES)[number];
 
+const VALID_SORTS: SortKey[] = ["name", "status", "assignedTo"];
+
+function buildOrderBy(sort: SortKey, dir: SortDir) {
+  if (sort === "status") return [{ clientStatus: dir }, { name: "asc" as const }];
+  if (sort === "assignedTo") return [{ assignedTo: { name: dir } }, { name: "asc" as const }];
+  return [{ name: dir }];
+}
+
 export default async function ClientsPage({ searchParams }: Props) {
   const user = await requireUser();
   const owner = user.role === "OWNER";
   await autoPromoteClients();
-  const { q, page: pageParam, status: statusParam } = await searchParams;
+  const { q, page: pageParam, status: statusParam, sort: sortParam, dir: dirParam } = await searchParams;
   const query = q?.trim() ?? "";
   const statusFilter = VALID_STATUSES.includes(statusParam as ClientStatus)
     ? (statusParam as ClientStatus)
     : null;
+  const sort: SortKey = VALID_SORTS.includes(sortParam as SortKey) ? (sortParam as SortKey) : "name";
+  const dir: SortDir = dirParam === "desc" ? "desc" : "asc";
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const skip = (page - 1) * PAGE_SIZE;
 
@@ -73,7 +86,7 @@ export default async function ClientsPage({ searchParams }: Props) {
   const [clients, total] = await Promise.all([
     prisma.client.findMany({
       where,
-      orderBy: { name: "asc" },
+      orderBy: buildOrderBy(sort, dir),
       skip,
       take: PAGE_SIZE,
       include: {
@@ -89,18 +102,32 @@ export default async function ClientsPage({ searchParams }: Props) {
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  const params = (p: number) =>
-    `?${new URLSearchParams({
-      ...(query && { q: query }),
-      ...(statusFilter && { status: statusFilter }),
-      page: String(p),
-    })}`;
 
-  const filterLink = (s: ClientStatus | null) => {
+  const buildParams = (overrides: Record<string, string | null>) => {
     const sp = new URLSearchParams();
     if (query) sp.set("q", query);
-    if (s) sp.set("status", s);
+    if (statusFilter) sp.set("status", statusFilter);
+    if (sort !== "name") sp.set("sort", sort);
+    if (dir !== "asc") sp.set("dir", dir);
+    for (const [k, v] of Object.entries(overrides)) {
+      if (v === null) sp.delete(k);
+      else sp.set(k, v);
+    }
     return `?${sp.toString()}`;
+  };
+
+  const params = (p: number) => buildParams({ page: String(p) });
+
+  const filterLink = (s: ClientStatus | null) => buildParams({ status: s ?? null, page: null });
+
+  const sortLink = (col: SortKey) => {
+    const nextDir = sort === col && dir === "asc" ? "desc" : "asc";
+    return buildParams({ sort: col === "name" ? null : col, dir: nextDir === "asc" ? null : "desc", page: null });
+  };
+
+  const SortArrow = ({ col }: { col: SortKey }) => {
+    if (sort !== col) return <span className="ml-1 opacity-30">↕</span>;
+    return <span className="ml-1">{dir === "asc" ? "↑" : "↓"}</span>;
   };
 
   return (
@@ -149,6 +176,8 @@ export default async function ClientsPage({ searchParams }: Props) {
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <form method="GET" className="flex-1 min-w-0">
           {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
+          {sort !== "name" && <input type="hidden" name="sort" value={sort} />}
+          {dir !== "asc" && <input type="hidden" name="dir" value={dir} />}
           <input
             name="q"
             type="search"
@@ -204,13 +233,17 @@ export default async function ClientsPage({ searchParams }: Props) {
                     className="px-4 py-3 text-[9px] uppercase text-warm-500"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
-                    Name
+                    <Link href={sortLink("name")} className="hover:text-warm-700 transition-colors inline-flex items-center">
+                      Name<SortArrow col="name" />
+                    </Link>
                   </th>
                   <th
                     className="px-4 py-3 text-[9px] uppercase text-warm-500"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
-                    Status
+                    <Link href={sortLink("status")} className="hover:text-warm-700 transition-colors inline-flex items-center">
+                      Status<SortArrow col="status" />
+                    </Link>
                   </th>
                   <th
                     className="px-4 py-3 text-[9px] uppercase text-warm-500 hidden sm:table-cell"
@@ -222,7 +255,9 @@ export default async function ClientsPage({ searchParams }: Props) {
                     className="px-4 py-3 text-[9px] uppercase text-warm-500 hidden md:table-cell"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
-                    Assigned To
+                    <Link href={sortLink("assignedTo")} className="hover:text-warm-700 transition-colors inline-flex items-center">
+                      Assigned To<SortArrow col="assignedTo" />
+                    </Link>
                   </th>
                   <th
                     className="px-4 py-3 text-[9px] uppercase text-warm-500 hidden sm:table-cell"
