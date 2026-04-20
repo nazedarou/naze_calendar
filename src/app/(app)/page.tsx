@@ -107,10 +107,10 @@ export default async function DashboardPage() {
       <div className="flex items-end justify-between gap-4 pb-6 mb-8 border-b border-warm-200">
         <div>
           <p className="text-sm text-warm-400 mb-1">
-            {format(now, "EEEE, d MMMM yyyy")}
+            {new Date(now.toLocaleString("en-US", { timeZone: "Asia/Singapore" })).toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
           <h1 className="text-3xl font-semibold text-warm-900" style={{ fontFamily: "var(--font-display)" }}>
-            Good {now.getHours() < 12 ? "morning" : now.getHours() < 18 ? "afternoon" : "evening"}, {user.name.split(" ")[0]}
+            {(() => { const h = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Singapore" })).getHours(); return `Good ${h < 12 ? "morning" : h < 18 ? "afternoon" : "evening"}` })()}, {user.name.split(" ")[0]}
           </h1>
         </div>
       </div>

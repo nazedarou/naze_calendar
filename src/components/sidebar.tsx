@@ -5,9 +5,9 @@ import { SidebarNav } from "./sidebar-nav";
 
 export function Sidebar({ user }: { user: SessionUser }) {
   return (
-    <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-white border-r border-warm-200">
+    <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-warm-50 border-r border-warm-200">
       {/* Logo */}
-      <div className="px-6 pt-7 pb-5 border-b border-warm-100">
+      <div className="px-6 pt-7 pb-5 border-b border-warm-200">
         <Link href="/" className="block group">
           <div className="flex items-baseline gap-0.5">
             <span
