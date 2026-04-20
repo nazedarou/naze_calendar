@@ -28,7 +28,7 @@ export default async function NewContractPage({ searchParams }: Props) {
         <h1 className="mt-2 text-2xl font-semibold">New project</h1>
       </div>
       {clients.length === 0 ? (
-        <div className="card p-6 text-slate-500">
+        <div className="card p-6 text-warm-500">
           You need to{" "}
           <Link href="/clients/new" className="text-brand-600 underline">add a client</Link> first.
         </div>

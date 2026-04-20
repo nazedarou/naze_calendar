@@ -38,7 +38,7 @@ const PAYMENT_STYLE: Record<PaymentVisualStatus, string> = {
 };
 
 const CONTRACT_STATUS_STYLE: Record<string, string> = {
-  DRAFT: "bg-slate-200 text-slate-700",
+  DRAFT: "bg-warm-100 text-warm-600",
   ACTIVE: "bg-green-100 text-green-800",
   COMPLETED: "bg-blue-100 text-blue-800",
   CANCELLED: "bg-red-100 text-red-700",
@@ -57,7 +57,7 @@ export default async function CalendarPage({ searchParams }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Calendar</h1>
-          <p className="text-sm text-slate-500">{format(cursor, "MMMM yyyy")}</p>
+          <p className="text-sm text-warm-500">{format(cursor, "MMMM yyyy")}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href={`/calendar?view=${activeView}&month=${format(subMonths(cursor, 1), "yyyy-MM")}`} className="btn-secondary">← Prev</Link>
@@ -67,7 +67,7 @@ export default async function CalendarPage({ searchParams }: Props) {
         </div>
       </div>
 
-      <div className="mb-5 border-b border-slate-200">
+      <div className="mb-5 border-b border-warm-100">
         <nav className="-mb-px flex gap-6 text-sm">
           <TabLink
             active={activeView === "month"}
@@ -100,7 +100,7 @@ function TabLink({ active, href, label }: { active: boolean; href: string; label
       className={`border-b-2 px-1 pb-3 font-medium ${
         active
           ? "border-brand-500 text-brand-700"
-          : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+          : "border-transparent text-warm-500 hover:border-warm-300 hover:text-warm-600"
       }`}
     >
       {label}
@@ -170,11 +170,11 @@ async function MonthView({ cursor }: { cursor: Date }) {
             </Link>
           ),
           mobileNode: (
-            <Link href={`/calendar/${e.id}`} className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+            <Link href={`/calendar/${e.id}`} className="flex items-start gap-3 py-3 border-b border-warm-50 last:border-0">
               <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-brand-500 mt-1.5" />
               <div className="min-w-0">
-                <div className="font-medium text-stone-900 truncate">{e.title}</div>
-                <div className="text-xs text-slate-500 mt-0.5">
+                <div className="font-medium text-warm-900 truncate">{e.title}</div>
+                <div className="text-xs text-warm-500 mt-0.5">
                   {timeStr}{e.client ? ` · ${e.client.name}` : ""}{assigneeNames ? ` · ${assigneeNames}` : ""}
                 </div>
               </div>
@@ -199,13 +199,13 @@ async function MonthView({ cursor }: { cursor: Date }) {
             </Link>
           ),
           mobileNode: (
-            <Link href={`/contracts/${p.contractId}`} className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+            <Link href={`/contracts/${p.contractId}`} className="flex items-start gap-3 py-3 border-b border-warm-50 last:border-0">
               <div className={`shrink-0 h-2 w-2 rounded-full mt-1.5 ${paymentColorDot}`} />
               <div className="min-w-0">
-                <div className="font-medium text-stone-900 truncate">
+                <div className="font-medium text-warm-900 truncate">
                   {p.contract.client.name} · Stage {p.stage} {p.label}
                 </div>
-                <div className="text-xs text-slate-500 mt-0.5">
+                <div className="text-xs text-warm-500 mt-0.5">
                   {formatMoney(p.amount)} · {p.contract.title}
                   <span className={`ml-2 inline-block rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
                     visual === "PAID" ? "bg-green-100 text-green-800" : visual === "OVERDUE" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"
@@ -229,7 +229,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
   return (
     <>
       {/* Legend */}
-      <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-slate-600">
+      <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-warm-500">
         <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-brand-500" /> Event</span>
         <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-green-500" /> Payment · Paid</span>
         <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-500" /> Payment · Pending</span>
@@ -237,16 +237,16 @@ async function MonthView({ cursor }: { cursor: Date }) {
       </div>
 
       {/* Agenda view — mobile only */}
-      <div className="md:hidden card divide-y divide-slate-100 overflow-hidden">
+      <div className="md:hidden card divide-y divide-warm-50 overflow-hidden">
         {agendaDays.length === 0 ? (
-          <p className="p-6 text-sm text-slate-500">No events or payments this month.</p>
+          <p className="p-6 text-sm text-warm-500">No events or payments this month.</p>
         ) : (
           agendaDays.map((day) => {
             const items = itemsByDay.get(day.toISOString()) ?? [];
             const isToday = isSameDay(day, new Date());
             return (
               <div key={day.toISOString()} className="px-4 py-3">
-                <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isToday ? "text-brand-600" : "text-slate-400"}`}>
+                <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isToday ? "text-brand-600" : "text-warm-400"}`}>
                   {formatInTimeZone(day, TZ, "EEE, MMM d")}
                   {isToday && <span className="ml-2 text-[10px] bg-brand-600 text-white rounded-full px-1.5 py-0.5">Today</span>}
                 </div>
@@ -261,7 +261,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
 
       {/* Grid view — desktop only */}
       <div className="hidden md:block card overflow-hidden">
-        <div className="grid grid-cols-7 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+        <div className="grid grid-cols-7 bg-warm-50 text-xs uppercase tracking-wide text-warm-500">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
             <div key={d} className="px-2 py-2 text-center">{d}</div>
           ))}
@@ -277,8 +277,8 @@ async function MonthView({ cursor }: { cursor: Date }) {
             return (
               <div
                 key={day.toISOString()}
-                className={`min-h-[110px] border-t border-l border-slate-200 p-1.5 text-xs ${
-                  inMonth ? "bg-white" : "bg-slate-50 text-slate-400"
+                className={`min-h-[110px] border-t border-l border-warm-100 p-1.5 text-xs ${
+                  inMonth ? "bg-white" : "bg-warm-50 text-warm-400"
                 }`}
               >
                 <div className={`mb-1 ${isToday ? "font-semibold text-brand-700" : ""}`}>
@@ -289,7 +289,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
                     <li key={item.id}>{item.node}</li>
                   ))}
                   {extra > 0 && (
-                    <li className="text-[10px] text-slate-500">+{extra} more</li>
+                    <li className="text-[10px] text-warm-500">+{extra} more</li>
                   )}
                 </ul>
               </div>
@@ -350,7 +350,7 @@ async function EmployeesView({
         <input type="hidden" name="view" value="employees" />
         <input type="hidden" name="month" value={monthParam} />
         <div className="relative flex-1 max-w-xs">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-warm-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
           </svg>
           <input
@@ -361,14 +361,14 @@ async function EmployeesView({
           />
         </div>
         {q && (
-          <Link href={`/calendar?view=employees&month=${monthParam}`} className="text-sm text-slate-500 hover:text-slate-700 underline">
+          <Link href={`/calendar?view=employees&month=${monthParam}`} className="text-sm text-warm-500 hover:text-warm-600 underline">
             Clear
           </Link>
         )}
       </form>
 
       {filtered.length === 0 ? (
-        <div className="card p-6 text-sm text-slate-500">
+        <div className="card p-6 text-sm text-warm-500">
           {search ? `No staff matching "${q}".` : "No employees yet."}
         </div>
       ) : (
@@ -392,7 +392,7 @@ async function EmployeesView({
                   </Link>{" "}
                   <span className="badge bg-brand-100 text-brand-700 ml-1">{emp.role}</span>
                 </div>
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-warm-500">
                   {events.length} event{events.length === 1 ? "" : "s"} ·{" "}
                   {contracts.length} contract{contracts.length === 1 ? "" : "s"}
                 </div>
@@ -400,20 +400,20 @@ async function EmployeesView({
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <h3 className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+                  <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">
                     Events this month
                   </h3>
                   {events.length === 0 ? (
-                    <p className="text-sm text-slate-500">No assigned events.</p>
+                    <p className="text-sm text-warm-500">No assigned events.</p>
                   ) : (
                     <>
-                      <ul className="divide-y divide-slate-200 text-sm">
+                      <ul className="divide-y divide-warm-100 text-sm">
                         {events.slice(0, MAX_PREVIEW).map((e) => (
                           <li key={e.id} className="py-2">
                             <Link href={`/calendar/${e.id}`} className="font-medium text-brand-700 hover:underline">
                               {e.title}
                             </Link>
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-warm-500">
                               {formatDateTime(e.startAt)}
                               {e.client ? ` · ${e.client.name}` : ""}
                             </div>
@@ -433,14 +433,14 @@ async function EmployeesView({
                 </div>
 
                 <div>
-                  <h3 className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+                  <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">
                     Active projects
                   </h3>
                   {contracts.length === 0 ? (
-                    <p className="text-sm text-slate-500">No assigned projects.</p>
+                    <p className="text-sm text-warm-500">No assigned projects.</p>
                   ) : (
                     <>
-                      <ul className="divide-y divide-slate-200 text-sm">
+                      <ul className="divide-y divide-warm-100 text-sm">
                         {contracts.slice(0, MAX_PREVIEW).map((c) => {
                           const nextDue = c.payments.find((p) => p.status !== "PAID");
                           const overdue =
@@ -453,12 +453,12 @@ async function EmployeesView({
                                 <Link href={`/contracts/${c.id}`} className="font-medium text-brand-700 hover:underline">
                                   {c.title}
                                 </Link>
-                                <div className="text-xs text-slate-500">
+                                <div className="text-xs text-warm-500">
                                   {c.client.name} · {formatMoney(c.totalAmount)}
                                 </div>
                               </div>
                               <div className="flex flex-col items-end gap-1">
-                                <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-slate-100"}`}>
+                                <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-warm-50"}`}>
                                   {c.status}
                                 </span>
                                 {overdue === "OVERDUE" && (

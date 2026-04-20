@@ -11,7 +11,7 @@ export default async function EmployeesPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">Employees</h1>
-        <p className="text-sm text-slate-500">Manage accounts, roles, and access.</p>
+        <p className="text-sm text-warm-500">Manage accounts, roles, and access.</p>
       </div>
 
       <div className="card p-6">
@@ -44,7 +44,7 @@ export default async function EmployeesPage() {
 
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">All accounts</h2>
-        <ul className="divide-y divide-slate-200">
+        <ul className="divide-y divide-warm-100">
           {users.map((u) => {
             const isSelf = u.id === owner.id;
             return (
@@ -59,7 +59,7 @@ export default async function EmployeesPage() {
                   </div>
                   <div className="sm:col-span-3">
                     <label className="label">Email</label>
-                    <input value={u.email} readOnly disabled className="input bg-slate-50" />
+                    <input value={u.email} readOnly disabled className="input bg-warm-50" />
                   </div>
                   <div className="sm:col-span-2">
                     <label className="label">Role</label>
@@ -82,7 +82,7 @@ export default async function EmployeesPage() {
                   <div className="sm:col-span-1 flex justify-end">
                     <button type="submit" className="btn-secondary w-full">Save</button>
                   </div>
-                  <div className="sm:col-span-12 text-xs text-slate-500">
+                  <div className="sm:col-span-12 text-xs text-warm-500">
                     Added {formatDate(u.createdAt)}
                     {isSelf && <span className="ml-2 badge bg-brand-100 text-brand-700">You</span>}
                   </div>

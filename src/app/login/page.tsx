@@ -18,20 +18,20 @@ export default async function LoginPage({ searchParams }: Props) {
         {/* Wordmark */}
         <div className="mb-10">
           <div
-            className="text-[42px] font-extrabold leading-none text-ink-900 tracking-tight mb-2"
+            className="text-[42px] font-extrabold leading-none text-warm-900 tracking-tight mb-2"
             style={{ fontFamily: "var(--font-display)" }}
           >
             FONK
           </div>
           <div
-            className="text-[9px] uppercase text-stone-400"
+            className="text-[9px] uppercase text-warm-400"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.28em" }}
           >
             Interior Management
           </div>
         </div>
 
-        <div className="border-t border-stone-300 mb-8" />
+        <div className="border-t border-warm-200 mb-8" />
 
         {success === "password_changed" && (
           <div className="mb-6 border border-ok-dim bg-ok-ghost px-4 py-3 text-sm text-ok-dim">

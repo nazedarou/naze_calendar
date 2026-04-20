@@ -68,7 +68,7 @@ export function ContractForm({
         <div>
           <label className="label">Title</label>
           {readOnly ? (
-            <p className="input bg-slate-50 text-slate-600">{initial?.title ?? ""}</p>
+            <p className="input bg-warm-50 text-warm-500">{initial?.title ?? ""}</p>
           ) : (
             <input id="title" name="title" required defaultValue={initial?.title ?? ""} className="input" />
           )}
@@ -76,7 +76,7 @@ export function ContractForm({
         <div>
           <label className="label">Client</label>
           {readOnly ? (
-            <p className="input bg-slate-50 text-slate-600">{clientName}</p>
+            <p className="input bg-warm-50 text-warm-500">{clientName}</p>
           ) : (
             <select
               id="clientId"
@@ -103,7 +103,7 @@ export function ContractForm({
         <div>
           <label className="label">Total amount</label>
           {readOnly ? (
-            <p className="input bg-slate-50 text-slate-600">{total != null ? formatMoney(total) : "—"}</p>
+            <p className="input bg-warm-50 text-warm-500">{total != null ? formatMoney(total) : "—"}</p>
           ) : (
             <input
               id="totalAmount"
@@ -120,7 +120,7 @@ export function ContractForm({
         <div>
           <label className="label">Start date</label>
           {readOnly ? (
-            <p className="input bg-slate-50 text-slate-600">{toDateInputValue(initial?.startDate ?? startDate)}</p>
+            <p className="input bg-warm-50 text-warm-500">{toDateInputValue(initial?.startDate ?? startDate)}</p>
           ) : (
             <input
               id="startDate"
@@ -135,7 +135,7 @@ export function ContractForm({
         <div>
           <label className="label">Status</label>
           {readOnly ? (
-            <p className="input bg-slate-50 text-slate-600">{displayStatus}</p>
+            <p className="input bg-warm-50 text-warm-500">{displayStatus}</p>
           ) : (
             <select id="status" name="status" defaultValue={displayStatus} className="input">
               <option value="DRAFT">Draft</option>
@@ -150,13 +150,13 @@ export function ContractForm({
       <div>
         <h3 className="text-sm font-semibold mb-2">Assigned employees</h3>
         {employees.length === 0 ? (
-          <p className="text-xs text-slate-500">No employees yet.</p>
+          <p className="text-xs text-warm-500">No employees yet.</p>
         ) : readOnly ? (
           <div className="grid gap-2 sm:grid-cols-2">
             {employees.filter((e) => assigned.has(e.id)).map((e) => (
-              <span key={e.id} className="text-sm text-slate-600">{e.name}</span>
+              <span key={e.id} className="text-sm text-warm-500">{e.name}</span>
             ))}
-            {assigned.size === 0 && <p className="text-xs text-slate-500">None assigned.</p>}
+            {assigned.size === 0 && <p className="text-xs text-warm-500">None assigned.</p>}
           </div>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2">
@@ -181,7 +181,7 @@ export function ContractForm({
           <div className="card p-3 flex items-center justify-between gap-4">
             <span className="text-sm font-medium">{STAGE_LABELS[0]}</span>
             {readOnly ? (
-              <span className="text-sm text-slate-600 tabular-nums">
+              <span className="text-sm text-warm-500 tabular-nums">
                 {stage1Amount != null ? formatMoney(stage1Amount) : "—"}
               </span>
             ) : (
@@ -203,9 +203,9 @@ export function ContractForm({
             const remainder = (total != null && stage1Amount != null) ? total - stage1Amount : null;
             const amount = remainder != null ? remainder * pct : null;
             return (
-              <div key={label} className="card p-3 flex items-center justify-between gap-4 bg-slate-50">
-                <span className="text-sm text-slate-600">{label}</span>
-                <span className="text-sm text-slate-500 text-right tabular-nums">
+              <div key={label} className="card p-3 flex items-center justify-between gap-4 bg-warm-50">
+                <span className="text-sm text-warm-500">{label}</span>
+                <span className="text-sm text-warm-500 text-right tabular-nums">
                   {(pct * 100).toFixed(0)}% of remainder{amount !== null ? ` = ${formatMoney(amount)}` : ""}
                 </span>
               </div>

@@ -13,7 +13,7 @@ type Props = {
 type StatusFilter = "ongoing" | "completed" | "all";
 
 const STATUS_BADGE: Record<string, string> = {
-  DRAFT: "bg-slate-200 text-slate-700",
+  DRAFT: "bg-warm-100 text-warm-600",
   ACTIVE: "bg-green-100 text-green-800",
   COMPLETED: "bg-blue-100 text-blue-800",
   CANCELLED: "bg-red-100 text-red-700",
@@ -68,7 +68,7 @@ export default async function ContractsPage({ searchParams }: Props) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Projects</h1>
-          <p className="text-sm text-slate-500">All projects and their payment progress</p>
+          <p className="text-sm text-warm-500">All projects and their payment progress</p>
         </div>
         {owner && <Link href="/contracts/new" className="btn-primary">+ New project</Link>}
       </div>
@@ -99,7 +99,7 @@ export default async function ContractsPage({ searchParams }: Props) {
               className={`px-3 py-1.5 transition-colors ${
                 statusFilter === key
                   ? "bg-brand-600 text-white"
-                  : "text-slate-600 hover:bg-brand-50"
+                  : "text-warm-500 hover:bg-brand-50"
               }`}
             >
               {label}
@@ -109,14 +109,14 @@ export default async function ContractsPage({ searchParams }: Props) {
       </div>
 
       {total === 0 ? (
-        <div className="card p-8 text-center text-slate-500">
+        <div className="card p-8 text-center text-warm-500">
           {query
             ? `No projects matching "${query}".`
             : <>No projects yet. <Link href="/contracts/new" className="text-brand-600 underline">Create one</Link>.</>}
         </div>
       ) : (
         <>
-          <p className="mb-3 text-sm text-slate-500">
+          <p className="mb-3 text-sm text-warm-500">
             {query ? `${total} result${total !== 1 ? "s" : ""} for "${query}" · ` : ""}
             Showing {skip + 1}–{Math.min(skip + PAGE_SIZE, total)} of {total}
           </p>
@@ -128,17 +128,17 @@ export default async function ContractsPage({ searchParams }: Props) {
                 <Link
                   key={c.id}
                   href={`/contracts/${c.id}`}
-                  className="card p-4 flex items-center justify-between hover:bg-slate-50"
+                  className="card p-4 flex items-center justify-between hover:bg-warm-50"
                 >
                   <div>
                     <div className="font-medium text-brand-700">{c.title}</div>
-                    <div className="text-sm text-slate-500">
+                    <div className="text-sm text-warm-500">
                       {c.client.name} · {formatDate(c.startDate)} · {formatMoney(c.totalAmount)}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-slate-500">{paid} / 5 paid</span>
-                    <span className={`badge ${STATUS_BADGE[c.status] ?? "bg-slate-100"}`}>
+                    <span className="text-xs text-warm-500">{paid} / 5 paid</span>
+                    <span className={`badge ${STATUS_BADGE[c.status] ?? "bg-warm-50"}`}>
                       {c.status}
                     </span>
                   </div>
@@ -149,7 +149,7 @@ export default async function ContractsPage({ searchParams }: Props) {
 
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between text-sm">
-              <span className="text-slate-500">Page {page} of {totalPages}</span>
+              <span className="text-warm-500">Page {page} of {totalPages}</span>
               <div className="flex gap-2">
                 {page > 1 && (
                   <Link href={params(page - 1)} className="btn-secondary">← Prev</Link>

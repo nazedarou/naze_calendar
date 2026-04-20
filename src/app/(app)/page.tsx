@@ -6,7 +6,7 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { autoPromoteClients } from "@/lib/auto-promote";
 
 const CONTRACT_STATUS_STYLE: Record<string, string> = {
-  DRAFT:     "bg-stone-100 text-stone-600",
+  DRAFT:     "bg-warm-50 text-warm-600",
   ACTIVE:    "bg-green-100 text-green-700",
   COMPLETED: "bg-blue-100 text-blue-700",
   CANCELLED: "bg-red-100 text-red-600",
@@ -104,22 +104,19 @@ export default async function DashboardPage() {
     <div className="space-y-0">
 
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="flex items-end justify-between gap-4 pb-6 mb-8 border-b border-stone-300">
+      <div className="flex items-end justify-between gap-4 pb-6 mb-8 border-b border-warm-200">
         <div>
-          <div
-            className="text-[10px] uppercase text-stone-400 mb-2 tabular-nums"
-            style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.22em" }}
-          >
-            {format(now, "EEEE, d MMMM yyyy").toUpperCase()}
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-ink-900 leading-none">
-            {user.name.split(" ")[0].toUpperCase()}
+          <p className="text-sm text-warm-400 mb-1">
+            {format(now, "EEEE, d MMMM yyyy")}
+          </p>
+          <h1 className="text-3xl font-semibold text-warm-900" style={{ fontFamily: "var(--font-display)" }}>
+            Good {now.getHours() < 12 ? "morning" : now.getHours() < 18 ? "afternoon" : "evening"}, {user.name.split(" ")[0]}
           </h1>
         </div>
       </div>
 
       {/* ── Stats strip ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 border border-stone-300 bg-white">
+      <div className="grid grid-cols-2 sm:grid-cols-4 border border-warm-200 bg-white">
         <StatCell label="Clients" value={clientsCount} href="/clients" />
         {owner
           ? <StatCell label="Active" value={activeContractsCount} href="/contracts" border />
@@ -135,7 +132,7 @@ export default async function DashboardPage() {
 
       {/* ── Revenue strip (owner only) ───────────────────────────── */}
       {owner && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 border border-stone-300 border-t-0 bg-white mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 border border-warm-200 border-t-0 bg-white mb-10">
           <RevenueCell label="Contracted" value={totalContracted} />
           <RevenueCell label="Collected" value={totalCollected} tone="ok" border />
           <RevenueCell
@@ -156,20 +153,20 @@ export default async function DashboardPage() {
       {!owner && <div className="mb-10" />}
 
       {/* ── This week + Overdue + Proposal reminders ─────────────── */}
-      <div className="grid lg:grid-cols-3 border border-stone-300 bg-white">
+      <div className="grid lg:grid-cols-3 border border-warm-200 bg-white">
 
         {/* This week */}
-        <section className="border-b lg:border-b-0 lg:border-r border-stone-300">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-stone-300">
+        <section className="border-b lg:border-b-0 lg:border-r border-warm-200">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-stone-400"
+              className="text-[10px] uppercase text-warm-400"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               This Week
             </h2>
             <Link
               href="/calendar/new"
-              className="text-[10px] uppercase text-stone-400 hover:text-ink-900 transition-colors"
+              className="text-[10px] uppercase text-warm-400 hover:text-warm-900 transition-colors"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
             >
               + Add
@@ -177,17 +174,17 @@ export default async function DashboardPage() {
           </div>
           {weekEvents.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-stone-400"
+              className="px-5 py-5 text-sm text-warm-400"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — No events in the next 7 days
             </p>
           ) : (
-            <ul className="divide-y divide-stone-200">
+            <ul className="divide-y divide-warm-100">
               {weekEvents.map((e) => (
                 <li key={e.id} className="px-5 py-3.5 flex items-start gap-4">
                   <div
-                    className="shrink-0 text-[10px] uppercase text-stone-400 w-12 pt-0.5 tabular-nums"
+                    className="shrink-0 text-[10px] uppercase text-warm-400 w-12 pt-0.5 tabular-nums"
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
                     {format(e.startAt, "MMM d").toUpperCase()}
@@ -195,12 +192,12 @@ export default async function DashboardPage() {
                   <div className="min-w-0">
                     <Link
                       href={`/calendar/${e.id}`}
-                      className="text-sm font-semibold text-ink-900 hover:text-stone-500 transition-colors block truncate"
+                      className="text-sm font-semibold text-warm-900 hover:text-warm-500 transition-colors block truncate"
                     >
                       {e.title}
                     </Link>
                     <div
-                      className="text-[11px] text-stone-400 mt-0.5"
+                      className="text-[11px] text-warm-400 mt-0.5"
                       style={{ fontFamily: "var(--font-mono)" }}
                     >
                       {format(e.startAt, "HH:mm")}
@@ -214,10 +211,10 @@ export default async function DashboardPage() {
         </section>
 
         {/* Overdue */}
-        <section className="border-b lg:border-b-0 lg:border-r border-stone-300">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-stone-300">
+        <section className="border-b lg:border-b-0 lg:border-r border-warm-200">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-stone-400"
+              className="text-[10px] uppercase text-warm-400"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               Overdue
@@ -233,13 +230,13 @@ export default async function DashboardPage() {
           </div>
           {overduePayments.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-stone-400"
+              className="px-5 py-5 text-sm text-warm-400"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — All clear
             </p>
           ) : (
-            <ul className="divide-y divide-stone-200">
+            <ul className="divide-y divide-warm-100">
               {overduePayments.map((p) => {
                 const days = p.dueDate
                   ? Math.floor((now.getTime() - new Date(p.dueDate).getTime()) / 86_400_000)
@@ -249,12 +246,12 @@ export default async function DashboardPage() {
                     <div className="min-w-0">
                       <Link
                         href={`/contracts/${p.contractId}`}
-                        className="text-sm font-semibold text-ink-900 hover:text-stone-500 transition-colors block truncate"
+                        className="text-sm font-semibold text-warm-900 hover:text-warm-500 transition-colors block truncate"
                       >
                         {p.contract.title}
                       </Link>
                       <div
-                        className="text-[11px] text-stone-400 mt-0.5"
+                        className="text-[11px] text-warm-400 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {p.contract.client.name} · Stage {p.stage}
@@ -268,7 +265,7 @@ export default async function DashboardPage() {
                         {formatMoney(p.amount)}
                       </div>
                       <div
-                        className="text-[10px] text-stone-400 mt-0.5"
+                        className="text-[10px] text-warm-400 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {days}d overdue
@@ -283,9 +280,9 @@ export default async function DashboardPage() {
 
         {/* Proposal Reminders */}
         <section>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-stone-300">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-stone-400"
+              className="text-[10px] uppercase text-warm-400"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               Proposal Reminders
@@ -301,13 +298,13 @@ export default async function DashboardPage() {
           </div>
           {proposalReminders.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-stone-400"
+              className="px-5 py-5 text-sm text-warm-400"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — All clear
             </p>
           ) : (
-            <ul className="divide-y divide-stone-200">
+            <ul className="divide-y divide-warm-100">
               {proposalReminders.map((c) => {
                 const secondEvent = c.events[0] ?? c.events[1];
                 const days = Math.floor(
@@ -318,12 +315,12 @@ export default async function DashboardPage() {
                     <div className="min-w-0">
                       <Link
                         href={`/clients/${c.id}`}
-                        className="text-sm font-semibold text-ink-900 hover:text-stone-500 transition-colors block truncate"
+                        className="text-sm font-semibold text-warm-900 hover:text-warm-500 transition-colors block truncate"
                       >
                         {c.name}
                       </Link>
                       <div
-                        className="text-[11px] text-stone-400 mt-0.5"
+                        className="text-[11px] text-warm-400 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         2nd meeting {format(secondEvent.startAt, "d MMM").toUpperCase()}
@@ -345,17 +342,17 @@ export default async function DashboardPage() {
 
       {/* ── Recent contracts (owner only) ───────────────────────── */}
       {owner && recentContracts && (
-        <div className="border border-stone-300 border-t-0 bg-white">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-stone-300">
+        <div className="border border-warm-200 border-t-0 bg-white">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-warm-200">
             <h2
-              className="text-[10px] uppercase text-stone-400"
+              className="text-[10px] uppercase text-warm-400"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
               Recent Projects
             </h2>
             <Link
               href="/contracts"
-              className="text-[10px] uppercase text-stone-400 hover:text-ink-900 transition-colors"
+              className="text-[10px] uppercase text-warm-400 hover:text-warm-900 transition-colors"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
             >
               View all →
@@ -363,13 +360,13 @@ export default async function DashboardPage() {
           </div>
           {recentContracts.length === 0 ? (
             <p
-              className="px-5 py-5 text-sm text-stone-400"
+              className="px-5 py-5 text-sm text-warm-400"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               — No projects yet
             </p>
           ) : (
-            <ul className="divide-y divide-stone-200">
+            <ul className="divide-y divide-warm-100">
               {recentContracts.map((c) => {
                 const totalPaid = c.payments
                   .filter((p) => p.status === "PAID")
@@ -385,16 +382,16 @@ export default async function DashboardPage() {
                       <div className="flex items-center gap-3 flex-wrap mb-1">
                         <Link
                           href={`/contracts/${c.id}`}
-                          className="font-bold text-sm text-ink-900 hover:text-stone-500 transition-colors"
+                          className="font-bold text-sm text-warm-900 hover:text-warm-500 transition-colors"
                         >
                           {c.title}
                         </Link>
-                        <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-stone-100 text-stone-600"}`}>
+                        <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-warm-50 text-warm-600"}`}>
                           {c.status}
                         </span>
                       </div>
                       <div
-                        className="text-[11px] text-stone-400 mb-2.5"
+                        className="text-[11px] text-warm-400 mb-2.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {c.client.name}
@@ -404,16 +401,16 @@ export default async function DashboardPage() {
                       </div>
                       {/* Progress bar — sharp */}
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-1 bg-stone-200">
+                        <div className="flex-1 h-1 bg-warm-100">
                           <div
                             className={`h-1 transition-all ${
-                              pct >= 80 ? "bg-ok" : pct >= 40 ? "bg-ink-900" : "bg-warn"
+                              pct >= 80 ? "bg-ok" : pct >= 40 ? "bg-warm-900" : "bg-warn"
                             }`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>
                         <span
-                          className="text-[10px] text-stone-400 shrink-0 tabular-nums"
+                          className="text-[10px] text-warm-400 shrink-0 tabular-nums"
                           style={{ fontFamily: "var(--font-mono)" }}
                         >
                           {pct}%
@@ -422,13 +419,13 @@ export default async function DashboardPage() {
                     </div>
                     <div className="text-right shrink-0 hidden sm:block">
                       <div
-                        className="font-bold text-sm text-ink-900 tabular-nums"
+                        className="font-bold text-sm text-warm-900 tabular-nums"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {formatMoney(totalPaid)}
                       </div>
                       <div
-                        className="text-[10px] text-stone-400"
+                        className="text-[10px] text-warm-400"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         / {formatMoney(c.totalAmount)}
@@ -460,19 +457,14 @@ function StatCell({
 }) {
   const inner = (
     <div
-      className={`p-5 ${border ? "border-l border-stone-300" : ""} ${
-        href ? "hover:bg-stone-50 transition-colors cursor-pointer" : ""
+      className={`p-5 ${border ? "border-l border-warm-200" : ""} ${
+        href ? "hover:bg-warm-50 transition-colors cursor-pointer" : ""
       }`}
     >
+      <div className="text-xs font-medium text-warm-400 mb-1.5">{label}</div>
       <div
-        className="text-[9px] uppercase text-stone-400 mb-2"
-        style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
-      >
-        {label}
-      </div>
-      <div
-        className={`text-4xl font-extrabold leading-none tabular-nums ${
-          tone === "danger" && value > 0 ? "text-danger" : "text-ink-900"
+        className={`text-2xl font-semibold leading-none tabular-nums ${
+          tone === "danger" && value > 0 ? "text-danger" : "text-warm-900"
         }`}
       >
         {value}
@@ -494,22 +486,17 @@ function RevenueCell({
   border?: boolean;
 }) {
   return (
-    <div className={`p-5 ${border ? "border-l border-stone-300" : ""}`}>
+    <div className={`p-5 ${border ? "border-l border-warm-200" : ""}`}>
+      <div className="text-xs font-medium text-warm-400 mb-1.5">{label}</div>
       <div
-        className="text-[9px] uppercase text-stone-400 mb-2"
-        style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
-      >
-        {label}
-      </div>
-      <div
-        className={`text-xl font-bold leading-none tabular-nums ${
+        className={`text-lg font-semibold leading-none tabular-nums ${
           tone === "ok"
             ? "text-ok"
             : tone === "warn"
             ? "text-warn"
             : tone === "danger"
             ? "text-danger"
-            : "text-ink-900"
+            : "text-warm-900"
         }`}
         style={{ fontFamily: "var(--font-mono)" }}
       >

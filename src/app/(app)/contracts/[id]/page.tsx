@@ -9,7 +9,7 @@ import { clearPaymentDue, deleteContract, markPaymentDue, togglePayment, updateC
 type Props = { params: Promise<{ id: string }> };
 
 const STATUS_BADGE: Record<string, string> = {
-  PENDING: "bg-slate-100 text-slate-700",
+  PENDING: "bg-warm-50 text-warm-600",
   PAID: "bg-green-100 text-green-800",
   OVERDUE: "bg-red-100 text-red-700",
 };
@@ -56,7 +56,7 @@ export default async function ContractDetailPage({ params }: Props) {
           ← Back to projects
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">{contract.title}</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-warm-500">
           <Link href={`/clients/${contract.client.id}`} className="text-brand-600 hover:underline">
             {contract.client.name}
           </Link>{" "}
@@ -71,7 +71,7 @@ export default async function ContractDetailPage({ params }: Props) {
 
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">Payment schedule</h2>
-        <ul className="divide-y divide-slate-200">
+        <ul className="divide-y divide-warm-100">
           {contract.payments.map((p) => {
             const overdue = p.status !== "PAID" && p.dueDate && p.dueDate < now;
             const visualStatus = overdue ? "OVERDUE" : p.status;
@@ -79,7 +79,7 @@ export default async function ContractDetailPage({ params }: Props) {
               <li key={p.id} className="py-3 flex items-center justify-between gap-4">
                 <div>
                   <div className="font-medium">{p.label}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-warm-500">
                     {p.status === "PAID" && p.paidDate
                       ? `Paid ${formatDate(p.paidDate)}`
                       : p.dueDate
@@ -94,7 +94,7 @@ export default async function ContractDetailPage({ params }: Props) {
                       <span className={`badge ${STATUS_BADGE["PAID"]}`}>PAID</span>
                       <form action={togglePayment.bind(null, p.id)}>
                         <input type="hidden" name="paid" value="false" />
-                        <button type="submit" className="text-xs text-slate-400 hover:text-slate-600 underline">
+                        <button type="submit" className="text-xs text-warm-400 hover:text-warm-500 underline">
                           Undo
                         </button>
                       </form>
@@ -107,7 +107,7 @@ export default async function ContractDetailPage({ params }: Props) {
                         <button type="submit" className="btn-primary text-xs">Paid</button>
                       </form>
                       <form action={clearPaymentDue.bind(null, p.id)}>
-                        <button type="submit" className="text-xs text-slate-400 hover:text-slate-600 underline">
+                        <button type="submit" className="text-xs text-warm-400 hover:text-warm-500 underline">
                           Undo
                         </button>
                       </form>
@@ -130,22 +130,22 @@ export default async function ContractDetailPage({ params }: Props) {
         {/* Profit summary */}
         {totalCosts > 0 && (
           <div className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-            <div className="rounded-lg bg-slate-50 px-4 py-3">
-              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Total costs</div>
-              <div className="font-semibold text-slate-800">{formatMoney(totalCosts)}</div>
+            <div className="rounded-lg bg-warm-50 px-4 py-3">
+              <div className="text-xs text-warm-500 uppercase tracking-wide mb-1">Total costs</div>
+              <div className="font-semibold text-warm-800">{formatMoney(totalCosts)}</div>
             </div>
-            <div className="rounded-lg bg-slate-50 px-4 py-3">
-              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Collected</div>
-              <div className="font-semibold text-slate-800">{formatMoney(totalPaid)}</div>
+            <div className="rounded-lg bg-warm-50 px-4 py-3">
+              <div className="text-xs text-warm-500 uppercase tracking-wide mb-1">Collected</div>
+              <div className="font-semibold text-warm-800">{formatMoney(totalPaid)}</div>
             </div>
             <div className={`rounded-lg px-4 py-3 ${grossProfit >= 0 ? "bg-green-50" : "bg-red-50"}`}>
-              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Gross profit</div>
+              <div className="text-xs text-warm-500 uppercase tracking-wide mb-1">Gross profit</div>
               <div className={`font-semibold ${grossProfit >= 0 ? "text-green-700" : "text-red-600"}`}>
                 {formatMoney(grossProfit)}
               </div>
             </div>
             <div className={`rounded-lg px-4 py-3 ${margin >= 0 ? "bg-green-50" : "bg-red-50"}`}>
-              <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Proj. margin</div>
+              <div className="text-xs text-warm-500 uppercase tracking-wide mb-1">Proj. margin</div>
               <div className={`font-semibold ${margin >= 0 ? "text-green-700" : "text-red-600"}`}>
                 {margin}%
               </div>
@@ -155,21 +155,21 @@ export default async function ContractDetailPage({ params }: Props) {
 
         {/* Cost list */}
         {contract.costs.length > 0 && (
-          <ul className="mb-4 divide-y divide-slate-200">
+          <ul className="mb-4 divide-y divide-warm-100">
             {contract.costs.map((c) => (
               <li key={c.id} className="py-2.5 flex items-center justify-between gap-3">
                 <span className="text-sm">{c.label}</span>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold">{formatMoney(c.amount)}</span>
                   <form action={deleteProjectCost.bind(null, c.id)}>
-                    <button type="submit" className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+                    <button type="submit" className="text-xs text-warm-400 hover:text-red-500 transition-colors">
                       Remove
                     </button>
                   </form>
                 </div>
               </li>
             ))}
-            <li className="pt-2.5 flex justify-between text-sm font-semibold text-slate-700">
+            <li className="pt-2.5 flex justify-between text-sm font-semibold text-warm-600">
               <span>Total</span>
               <span>{formatMoney(totalCosts)}</span>
             </li>

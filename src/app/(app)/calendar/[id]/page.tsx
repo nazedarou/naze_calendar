@@ -41,7 +41,7 @@ export default async function EventDetailPage({ params }: Props) {
           ← Back to calendar
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">{event.title}</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-warm-500">
           {formatDateTime(event.startAt)}
         </p>
       </div>

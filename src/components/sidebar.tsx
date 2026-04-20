@@ -5,21 +5,18 @@ import { SidebarNav } from "./sidebar-nav";
 
 export function Sidebar({ user }: { user: SessionUser }) {
   return (
-    <aside className="hidden md:flex w-52 flex-shrink-0 flex-col bg-ink-950 border-r border-ink-600">
+    <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-white border-r border-warm-200">
       {/* Wordmark */}
-      <div className="px-6 pt-7 pb-6 border-b border-ink-600">
+      <div className="px-6 pt-7 pb-5 border-b border-warm-100">
         <Link href="/" className="block group">
           <div
-            className="text-[32px] font-extrabold leading-none text-ink-100 tracking-tight"
+            className="text-3xl font-semibold leading-none text-warm-900 tracking-wide"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            FONK
+            Fonk
           </div>
-          <div
-            className="mt-2 text-[9px] uppercase text-ink-500"
-            style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.28em" }}
-          >
-            Interior Mgmt
+          <div className="mt-1 text-[10px] text-warm-400 tracking-widest uppercase font-medium">
+            Interior Studio
           </div>
         </Link>
       </div>
@@ -28,25 +25,20 @@ export function Sidebar({ user }: { user: SessionUser }) {
       <SidebarNav user={user} />
 
       {/* User + sign out */}
-      <div className="px-4 pb-5 pt-4 border-t border-ink-600 mt-auto space-y-1">
+      <div className="px-4 pb-5 pt-4 border-t border-warm-100 mt-auto space-y-1">
         <Link
           href="/profile"
-          className="flex items-center gap-2.5 px-2 py-2 text-xs text-ink-400 hover:text-ink-100 transition-colors group"
+          className="flex items-center gap-2.5 px-2 py-2 rounded-md text-xs text-warm-500 hover:text-warm-900 hover:bg-warm-50 transition-colors group"
         >
-          <div className="w-6 h-6 border border-ink-600 group-hover:border-lime flex items-center justify-center shrink-0 transition-colors">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+          <div className="w-7 h-7 rounded-full bg-warm-100 border border-warm-200 flex items-center justify-center shrink-0 text-warm-600 group-hover:border-brand-300 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="8" r="4" />
               <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" />
             </svg>
           </div>
           <div className="min-w-0">
-            <div className="truncate text-ink-200 text-xs font-semibold">{user.name}</div>
-            <div
-              className="text-[9px] uppercase text-ink-500"
-              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
-            >
-              {user.role}
-            </div>
+            <div className="truncate text-warm-800 text-xs font-semibold">{user.name}</div>
+            <div className="text-[10px] text-warm-400 capitalize">{user.role.toLowerCase()}</div>
           </div>
         </Link>
         <form
@@ -57,10 +49,9 @@ export function Sidebar({ user }: { user: SessionUser }) {
         >
           <button
             type="submit"
-            className="w-full text-left px-2 py-1.5 text-[11px] uppercase text-ink-500 hover:text-danger transition-colors"
-            style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
+            className="w-full text-left px-2 py-1.5 text-xs text-warm-400 hover:text-danger transition-colors rounded-md"
           >
-            Sign out →
+            Sign out
           </button>
         </form>
       </div>

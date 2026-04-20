@@ -11,7 +11,7 @@ type Props = {
 };
 
 const CONTRACT_STATUS_STYLE: Record<string, string> = {
-  DRAFT: "bg-slate-200 text-slate-700",
+  DRAFT: "bg-warm-100 text-warm-600",
   ACTIVE: "bg-green-100 text-green-800",
   COMPLETED: "bg-blue-100 text-blue-800",
   CANCELLED: "bg-red-100 text-red-700",
@@ -86,7 +86,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
           ← Back to By employee
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">{emp.name}</h1>
-        <p className="text-sm text-slate-500">{emp.role}</p>
+        <p className="text-sm text-warm-500">{emp.role}</p>
       </div>
 
       {/* Events section */}
@@ -94,7 +94,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-lg font-semibold">
             Events — {format(cursor, "MMMM yyyy")}
-            <span className="ml-2 text-sm font-normal text-slate-500">({events.length})</span>
+            <span className="ml-2 text-sm font-normal text-warm-500">({events.length})</span>
           </h2>
           <div className="flex items-center gap-2 text-sm">
             <Link
@@ -119,22 +119,22 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
         </div>
 
         {events.length === 0 ? (
-          <p className="text-sm text-slate-500">No events assigned in {format(cursor, "MMMM yyyy")}.</p>
+          <p className="text-sm text-warm-500">No events assigned in {format(cursor, "MMMM yyyy")}.</p>
         ) : (
-          <ul className="divide-y divide-slate-200 text-sm">
+          <ul className="divide-y divide-warm-100 text-sm">
             {events.map((e) => (
               <li key={e.id} className="py-3">
                 <Link href={`/calendar/${e.id}`} className="font-medium text-brand-700 hover:underline">
                   {e.title}
                 </Link>
-                <div className="text-xs text-slate-500 mt-0.5">
+                <div className="text-xs text-warm-500 mt-0.5">
                   {formatDateTime(e.startAt)}
                   {e.location ? ` · ${e.location}` : ""}
                   {e.client ? ` · ${e.client.name}` : ""}
                   {e.contract ? ` · ${e.contract.title}` : ""}
                 </div>
                 {e.description && (
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">{e.description}</p>
+                  <p className="text-xs text-warm-500 mt-1 line-clamp-2">{e.description}</p>
                 )}
               </li>
             ))}
@@ -147,7 +147,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-lg font-semibold">
             Projects
-            <span className="ml-2 text-sm font-normal text-slate-500">({contracts.length})</span>
+            <span className="ml-2 text-sm font-normal text-warm-500">({contracts.length})</span>
           </h2>
           <div className="flex items-center gap-1 text-sm border border-brand-200 rounded-lg overflow-hidden">
             {(
@@ -163,7 +163,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
                 className={`px-3 py-1.5 transition-colors ${
                   contractsFilter === key
                     ? "bg-brand-600 text-white"
-                    : "text-slate-600 hover:bg-brand-50"
+                    : "text-warm-500 hover:bg-brand-50"
                 }`}
               >
                 {label}
@@ -173,11 +173,11 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
         </div>
 
         {contracts.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-warm-500">
             No {contractsFilter === "all" ? "" : contractsFilter + " "}projects assigned.
           </p>
         ) : (
-          <ul className="divide-y divide-slate-200 text-sm">
+          <ul className="divide-y divide-warm-100 text-sm">
             {contracts.map((c) => {
               const nextDue = c.payments.find((p) => p.status !== "PAID");
               const overdue =
@@ -192,11 +192,11 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
                     <Link href={`/contracts/${c.id}`} className="font-medium text-brand-700 hover:underline">
                       {c.title}
                     </Link>
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <div className="text-xs text-warm-500 mt-0.5">
                       {c.client.name} · {formatMoney(c.totalAmount)} total · {formatMoney(totalPaid)} collected
                     </div>
                     {nextDue && (
-                      <div className="text-xs text-slate-500 mt-0.5">
+                      <div className="text-xs text-warm-500 mt-0.5">
                         Next: Stage {nextDue.stage} — {nextDue.label}
                         {nextDue.dueDate ? ` due ${formatDate(nextDue.dueDate)}` : " (not yet due)"}
                         {" · "}{formatMoney(nextDue.amount)}
@@ -205,7 +205,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
                     {!nextDue && <div className="text-xs text-green-600 mt-0.5">All payments collected</div>}
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-slate-100"}`}>
+                    <span className={`badge ${CONTRACT_STATUS_STYLE[c.status] ?? "bg-warm-50"}`}>
                       {c.status}
                     </span>
                     {overdue && (

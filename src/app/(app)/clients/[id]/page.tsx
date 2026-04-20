@@ -43,7 +43,7 @@ export default async function ClientDetailPage({ params }: Props) {
           ← Back to clients
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">{client.name}</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-warm-500">
           Added {formatDate(client.createdAt)}
           {client.assignedTo && <> · Assigned to <span className="font-medium">{client.assignedTo.name}</span></>}
         </p>
@@ -67,7 +67,7 @@ export default async function ClientDetailPage({ params }: Props) {
             submitLabel="Save changes"
           />
           <div className="mt-4 border-t pt-4">
-            <p className="text-xs text-stone-400 mb-2" style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
+            <p className="text-xs text-warm-400 mb-2" style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
               PROPOSAL
             </p>
             <ProposalToggleButton clientId={client.id} sent={client.proposalSent} />
@@ -93,20 +93,20 @@ export default async function ClientDetailPage({ params }: Props) {
               )}
             </div>
             {client.contracts.length === 0 ? (
-              <p className="text-sm text-slate-500">No projects yet.</p>
+              <p className="text-sm text-warm-500">No projects yet.</p>
             ) : (
-              <ul className="divide-y divide-slate-200">
+              <ul className="divide-y divide-warm-100">
                 {client.contracts.map((c) => (
                   <li key={c.id} className="py-3 flex items-center justify-between">
                     <div>
                       <Link href={`/contracts/${c.id}`} className="font-medium text-brand-700 hover:underline">
                         {c.title}
                       </Link>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-warm-500">
                         {formatMoney(c.totalAmount)} · {c.status} · {formatDate(c.startDate)}
                       </p>
                     </div>
-                    <span className="badge bg-slate-100 text-slate-600">
+                    <span className="badge bg-warm-50 text-warm-500">
                       {c._count.payments} payments
                     </span>
                   </li>
@@ -118,13 +118,13 @@ export default async function ClientDetailPage({ params }: Props) {
           <div className="card p-6">
             <h2 className="text-lg font-semibold mb-4">Recent events</h2>
             {client.events.length === 0 ? (
-              <p className="text-sm text-slate-500">No events yet.</p>
+              <p className="text-sm text-warm-500">No events yet.</p>
             ) : (
-              <ul className="divide-y divide-slate-200 text-sm">
+              <ul className="divide-y divide-warm-100 text-sm">
                 {client.events.map((e) => (
                   <li key={e.id} className="py-2">
                     <div className="font-medium">{e.title}</div>
-                    <div className="text-xs text-slate-500">{formatDateTime(e.startAt)}</div>
+                    <div className="text-xs text-warm-500">{formatDateTime(e.startAt)}</div>
                   </li>
                 ))}
               </ul>

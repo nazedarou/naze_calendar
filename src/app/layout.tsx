@@ -1,18 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Syne, IBM_Plex_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, DM_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
+const mono = DM_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   weight: ["400", "500"],
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["300", "400", "500", "600"],
   display: "swap",
 });
 
@@ -30,12 +37,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#111110",
+  themeColor: "#F5F2EC",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${syne.variable} ${mono.variable}`}>
+    <html lang="en" className={`${jakarta.variable} ${mono.variable} ${cormorant.variable}`}>
       <body>{children}</body>
     </html>
   );

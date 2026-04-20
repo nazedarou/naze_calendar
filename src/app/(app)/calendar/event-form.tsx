@@ -94,7 +94,7 @@ export function EventForm({
       <div>
         <h3 className="text-sm font-semibold mb-2">Assigned staff</h3>
         {employees.length === 0 ? (
-          <p className="text-xs text-slate-500">No employees yet.</p>
+          <p className="text-xs text-warm-500">No employees yet.</p>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2">
             {employees.map((e) => {

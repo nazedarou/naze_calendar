@@ -12,9 +12,9 @@ body {
 }
 
 body {
-  background-color: #F4F3EE;
-  color: #111110;
-  font-family: var(--font-display), sans-serif;
+  background-color: #F5F2EC;
+  color: #2C2825;
+  font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -22,13 +22,13 @@ body {
 @layer components {
   /* ── Buttons ──────────────────────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-bold uppercase tracking-widest transition disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply btn bg-ink-900 text-white hover:bg-ink-700;
+    @apply btn bg-warm-900 text-warm-50 hover:bg-warm-800;
   }
   .btn-secondary {
-    @apply btn bg-transparent border border-stone-300 text-stone-700 hover:border-ink-900 hover:text-ink-900;
+    @apply btn bg-white border border-warm-200 text-warm-700 hover:border-warm-400 hover:text-warm-900;
   }
   .btn-danger {
     @apply btn bg-danger text-white hover:bg-danger-dim;
@@ -36,25 +36,21 @@ body {
 
   /* ── Form controls ────────────────────────────────────────────── */
   .input {
-    @apply block w-full border border-stone-300 bg-white px-3 py-2 text-sm text-ink-900
-           focus:border-ink-900 focus:outline-none focus:ring-0
-           placeholder:text-stone-400;
-    border-radius: 0;
+    @apply block w-full rounded-md border border-warm-200 bg-white px-3 py-2 text-sm text-warm-900
+           focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-200
+           placeholder:text-warm-400;
   }
   .label {
-    @apply block text-[10px] uppercase text-stone-500 mb-1.5;
-    font-family: var(--font-mono), monospace;
-    letter-spacing: 0.12em;
+    @apply block text-xs font-medium text-warm-600 mb-1.5;
   }
 
   /* ── Panel ────────────────────────────────────────────────────── */
   .card {
-    @apply border border-stone-200 bg-white;
+    @apply rounded-lg border border-warm-200 bg-white shadow-sm;
   }
 
   /* ── Badge ────────────────────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase;
-    letter-spacing: 0.08em;
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
   }
 }

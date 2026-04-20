@@ -34,7 +34,7 @@ export default async function ProfilePage({ searchParams }: Props) {
     <div className="max-w-lg space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">Profile</h1>
-        <p className="text-sm text-slate-500">{user.email}</p>
+        <p className="text-sm text-warm-500">{user.email}</p>
       </div>
 
       {errorMessage && (
@@ -77,7 +77,7 @@ export default async function ProfilePage({ searchParams }: Props) {
             Google Calendar disconnected.
           </p>
         )}
-        <p className="text-sm text-stone-600">
+        <p className="text-sm text-warm-600">
           {googleConnected
             ? "Your Google Calendar is connected. Events and payment milestones assigned to you will sync automatically."
             : "Connect your Google Calendar to automatically receive events and payment due dates."}
@@ -113,7 +113,7 @@ export default async function ProfilePage({ searchParams }: Props) {
             <label htmlFor="confirmPassword" className="label">Confirm new password</label>
             <input id="confirmPassword" name="confirmPassword" type="password" required minLength={8} autoComplete="new-password" className="input" />
           </div>
-          <p className="text-xs text-slate-500">You will be signed out after changing your password.</p>
+          <p className="text-xs text-warm-500">You will be signed out after changing your password.</p>
           <div className="flex justify-end">
             <button type="submit" className="btn-primary">Change password</button>
           </div>
