@@ -23,9 +23,9 @@ export default async function NewContractPage({ searchParams }: Props) {
     <div>
       <div className="mb-6">
         <Link href="/contracts" className="text-sm text-brand-600 hover:underline">
-          ← Back to contracts
+          ← Back to projects
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold">New contract</h1>
+        <h1 className="mt-2 text-2xl font-semibold">New project</h1>
       </div>
       {clients.length === 0 ? (
         <div className="card p-6 text-slate-500">
@@ -39,7 +39,7 @@ export default async function NewContractPage({ searchParams }: Props) {
             clients={clients}
             employees={employees}
             defaultClientId={clientId}
-            submitLabel="Create contract"
+            submitLabel="Create project"
           />
         </div>
       )}

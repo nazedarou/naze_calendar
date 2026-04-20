@@ -434,10 +434,10 @@ async function EmployeesView({
 
                 <div>
                   <h3 className="text-xs uppercase tracking-wide text-slate-500 mb-2">
-                    Active contracts
+                    Active projects
                   </h3>
                   {contracts.length === 0 ? (
-                    <p className="text-sm text-slate-500">No assigned contracts.</p>
+                    <p className="text-sm text-slate-500">No assigned projects.</p>
                   ) : (
                     <>
                       <ul className="divide-y divide-slate-200 text-sm">

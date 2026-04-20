@@ -146,7 +146,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
       <div className="card p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-lg font-semibold">
-            Contracts
+            Projects
             <span className="ml-2 text-sm font-normal text-slate-500">({contracts.length})</span>
           </h2>
           <div className="flex items-center gap-1 text-sm border border-brand-200 rounded-lg overflow-hidden">
@@ -174,7 +174,7 @@ export default async function EmployeeCalendarPage({ params, searchParams }: Pro
 
         {contracts.length === 0 ? (
           <p className="text-sm text-slate-500">
-            No {contractsFilter === "all" ? "" : contractsFilter + " "}contracts assigned.
+            No {contractsFilter === "all" ? "" : contractsFilter + " "}projects assigned.
           </p>
         ) : (
           <ul className="divide-y divide-slate-200 text-sm">

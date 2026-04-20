@@ -56,7 +56,7 @@ const baseLinks = [
   { href: "/",          label: "Dashboard", icon: HomeIcon,      exact: true  },
   { href: "/calendar",  label: "Calendar",  icon: CalendarIcon,  exact: false },
   { href: "/clients",   label: "Clients",   icon: ClientsIcon,   exact: false },
-  { href: "/contracts", label: "Contracts", icon: ContractsIcon, exact: false },
+  { href: "/contracts", label: "Projects",  icon: ContractsIcon, exact: false },
 ];
 
 export function SidebarNav({ user }: { user: SessionUser }) {

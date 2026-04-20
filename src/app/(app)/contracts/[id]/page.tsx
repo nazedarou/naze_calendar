@@ -53,7 +53,7 @@ export default async function ContractDetailPage({ params }: Props) {
     <div className="space-y-8">
       <div>
         <Link href="/contracts" className="text-sm text-brand-600 hover:underline">
-          ← Back to contracts
+          ← Back to projects
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">{contract.title}</h1>
         <p className="text-sm text-slate-500">
@@ -191,7 +191,7 @@ export default async function ContractDetailPage({ params }: Props) {
       </div>
 
       <div className="card p-6">
-          <h2 className="text-lg font-semibold mb-4">Edit contract</h2>
+          <h2 className="text-lg font-semibold mb-4">Edit project</h2>
           <ContractForm
             readOnly={!isOwner(user)}
             action={updateContract.bind(null, contract.id)}
@@ -214,7 +214,7 @@ export default async function ContractDetailPage({ params }: Props) {
               action={deleteContract.bind(null, contract.id)}
               className="mt-6 border-t pt-4 flex justify-end"
             >
-              <button type="submit" className="btn-danger">Delete contract</button>
+              <button type="submit" className="btn-danger">Delete project</button>
             </form>
           )}
         </div>

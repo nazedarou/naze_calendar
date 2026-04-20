@@ -355,7 +355,7 @@ export default async function DashboardPage() {
               className="text-[10px] uppercase text-stone-400"
               style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
             >
-              Recent Contracts
+              Recent Projects
             </h2>
             <Link
               href="/contracts"
@@ -370,7 +370,7 @@ export default async function DashboardPage() {
               className="px-5 py-5 text-sm text-stone-400"
               style={{ fontFamily: "var(--font-mono)" }}
             >
-              — No contracts yet
+              — No projects yet
             </p>
           ) : (
             <ul className="divide-y divide-stone-200">

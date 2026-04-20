@@ -226,7 +226,7 @@ export default async function ClientsPage({ searchParams }: Props) {
                     className="px-4 py-3 text-[9px] uppercase text-stone-400 hidden sm:table-cell"
                     style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
                   >
-                    Contract
+                    Project
                   </th>
                 </tr>
               </thead>

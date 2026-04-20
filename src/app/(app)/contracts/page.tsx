@@ -67,10 +67,10 @@ export default async function ContractsPage({ searchParams }: Props) {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold">Contracts</h1>
-          <p className="text-sm text-slate-500">All contracts and their payment progress</p>
+          <h1 className="text-2xl font-semibold">Projects</h1>
+          <p className="text-sm text-slate-500">All projects and their payment progress</p>
         </div>
-        {owner && <Link href="/contracts/new" className="btn-primary">+ New contract</Link>}
+        {owner && <Link href="/contracts/new" className="btn-primary">+ New project</Link>}
       </div>
 
       <div className="flex flex-wrap items-center gap-3 mb-5">
@@ -111,8 +111,8 @@ export default async function ContractsPage({ searchParams }: Props) {
       {total === 0 ? (
         <div className="card p-8 text-center text-slate-500">
           {query
-            ? `No contracts matching "${query}".`
-            : <>No contracts yet. <Link href="/contracts/new" className="text-brand-600 underline">Create one</Link>.</>}
+            ? `No projects matching "${query}".`
+            : <>No projects yet. <Link href="/contracts/new" className="text-brand-600 underline">Create one</Link>.</>}
         </div>
       ) : (
         <>
