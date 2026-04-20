@@ -3,6 +3,7 @@ import { addDays, format } from "date-fns";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/permissions";
 import { formatDate, formatMoney } from "@/lib/format";
+import { autoPromoteClients } from "@/lib/auto-promote";
 
 const CONTRACT_STATUS_STYLE: Record<string, string> = {
   DRAFT:     "bg-stone-100 text-stone-600",
@@ -15,6 +16,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const owner = user.role === "OWNER";
   const now = new Date();
+  await autoPromoteClients();
   const weekEnd = addDays(now, 7);
 
   const paymentFilter = owner

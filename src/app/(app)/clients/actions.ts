@@ -7,6 +7,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireOwner, requireUser } from "@/lib/permissions";
 
+const CLIENT_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT"] as const;
+
 const clientSchema = z.object({
   name:         z.string().min(1, "Name is required").max(200),
   email:        z.string().email().or(z.literal("")).optional(),
@@ -14,6 +16,8 @@ const clientSchema = z.object({
   address:      z.string().max(500).optional(),
   notes:        z.string().max(2000).optional(),
   assignedToId: z.string().optional(),
+  clientStatus: z.enum(CLIENT_STATUSES).default("NEW"),
+  proposalSent: z.boolean().default(false),
 });
 
 function clean(s: string | undefined | null) {
@@ -21,16 +25,22 @@ function clean(s: string | undefined | null) {
   return v === "" ? null : v;
 }
 
-export async function createClient(formData: FormData) {
-  const user = await requireUser();
-  const parsed = clientSchema.parse({
+function buildPayload(formData: FormData) {
+  return {
     name:         formData.get("name"),
     email:        formData.get("email") ?? "",
     phone:        formData.get("phone") ?? "",
     address:      formData.get("address") ?? "",
     notes:        formData.get("notes") ?? "",
     assignedToId: formData.get("assignedToId") ?? "",
-  });
+    clientStatus: formData.get("clientStatus") ?? "NEW",
+    proposalSent: formData.get("proposalSent") === "on",
+  };
+}
+
+export async function createClient(formData: FormData) {
+  const user = await requireUser();
+  const parsed = clientSchema.parse(buildPayload(formData));
 
   const client = await prisma.client.create({
     data: {
@@ -40,6 +50,8 @@ export async function createClient(formData: FormData) {
       address:      clean(parsed.address),
       notes:        clean(parsed.notes),
       assignedToId: clean(parsed.assignedToId),
+      clientStatus: parsed.clientStatus,
+      proposalSent: parsed.proposalSent,
       createdById:  user.id,
     },
   });
@@ -49,14 +61,7 @@ export async function createClient(formData: FormData) {
 
 export async function updateClient(id: string, formData: FormData) {
   await requireUser();
-  const parsed = clientSchema.parse({
-    name:         formData.get("name"),
-    email:        formData.get("email") ?? "",
-    phone:        formData.get("phone") ?? "",
-    address:      formData.get("address") ?? "",
-    notes:        formData.get("notes") ?? "",
-    assignedToId: formData.get("assignedToId") ?? "",
-  });
+  const parsed = clientSchema.parse(buildPayload(formData));
 
   await prisma.client.update({
     where: { id },
@@ -67,6 +72,8 @@ export async function updateClient(id: string, formData: FormData) {
       address:      clean(parsed.address),
       notes:        clean(parsed.notes),
       assignedToId: clean(parsed.assignedToId),
+      clientStatus: parsed.clientStatus,
+      proposalSent: parsed.proposalSent,
     },
   });
   revalidatePath("/clients");

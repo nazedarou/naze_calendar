@@ -28,6 +28,12 @@ enum PaymentStatus {
   OVERDUE
 }
 
+enum ClientStatus {
+  NEW
+  FIRST_APPOINTMENT
+  SECOND_APPOINTMENT
+}
+
 
 model User {
   id                  String   @id @default(cuid())
@@ -65,7 +71,10 @@ model Client {
   createdBy   User   @relation("ClientCreatedBy", fields: [createdById], references: [id])
 
   assignedToId String?
-  assignedTo   User?  @relation("ClientAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedTo   User?        @relation("ClientAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  clientStatus ClientStatus @default(NEW)
+  proposalSent Boolean      @default(false)
 
   contracts Contract[]
   events    Event[]

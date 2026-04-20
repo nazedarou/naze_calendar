@@ -60,6 +60,8 @@ export default async function ClientDetailPage({ params }: Props) {
               address:      client.address,
               notes:        client.notes,
               assignedToId: client.assignedToId,
+              clientStatus: client.clientStatus,
+              proposalSent: client.proposalSent,
             }}
             employees={employees}
             submitLabel="Save changes"
