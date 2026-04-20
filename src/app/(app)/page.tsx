@@ -27,23 +27,22 @@ export default async function DashboardPage() {
     ? { startAt: { gte: now, lte: weekEnd } }
     : { startAt: { gte: now, lte: weekEnd }, assignments: { some: { userId: user.id } } };
 
-  // Proposal reminders: SECOND_APPOINTMENT + no proposal sent + 2 past events
-  const proposalCandidates = await prisma.client.findMany({
+  // Proposal reminders: PENDING + no proposal sent
+  const proposalReminders = await prisma.client.findMany({
     where: {
       proposalSent: false,
-      clientStatus: "SECOND_APPOINTMENT",
+      clientStatus: "PENDING",
       ...(owner ? {} : { assignedToId: user.id }),
     },
     include: {
       events: {
         where: { startAt: { lt: now } },
-        orderBy: { startAt: "asc" },
+        orderBy: { startAt: "desc" },
         select: { id: true, startAt: true },
         take: 2,
       },
     },
   });
-  const proposalReminders = proposalCandidates.filter((c) => c.events.length >= 2);
 
   const [
     weekEvents,
@@ -310,7 +309,7 @@ export default async function DashboardPage() {
           ) : (
             <ul className="divide-y divide-stone-200">
               {proposalReminders.map((c) => {
-                const secondEvent = c.events[1] ?? c.events[0];
+                const secondEvent = c.events[0] ?? c.events[1];
                 const days = Math.floor(
                   (now.getTime() - new Date(secondEvent.startAt).getTime()) / 86_400_000
                 );
@@ -327,7 +326,7 @@ export default async function DashboardPage() {
                         className="text-[11px] text-stone-400 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
-                        2nd appt {format(secondEvent.startAt, "d MMM").toUpperCase()}
+                        2nd meeting {format(secondEvent.startAt, "d MMM").toUpperCase()}
                       </div>
                     </div>
                     <div

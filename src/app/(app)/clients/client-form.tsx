@@ -8,13 +8,13 @@ type Initial = {
   notes?: string | null;
   assignedToId?: string | null;
   clientStatus?: ClientStatus;
-  proposalSent?: boolean;
 };
 
 const CLIENT_STATUS_OPTIONS: { value: ClientStatus; label: string }[] = [
   { value: "NEW",                label: "New" },
-  { value: "FIRST_APPOINTMENT",  label: "First Appointment" },
-  { value: "SECOND_APPOINTMENT", label: "Second Appointment" },
+  { value: "FIRST_APPOINTMENT",  label: "First Meeting" },
+  { value: "SECOND_APPOINTMENT", label: "Second Meeting" },
+  { value: "PENDING",            label: "Pending" },
   { value: "CLOSED",             label: "Closed (Engaged)" },
 ];
 
@@ -77,18 +77,6 @@ export function ClientForm({
             ))}
           </select>
         </div>
-      </div>
-      <div className="flex items-center gap-2 pt-1">
-        <input
-          id="proposalSent"
-          name="proposalSent"
-          type="checkbox"
-          defaultChecked={initial?.proposalSent ?? false}
-          className="h-4 w-4 accent-ink-900"
-        />
-        <label htmlFor="proposalSent" className="text-sm text-stone-700 cursor-pointer">
-          Proposal sent
-        </label>
       </div>
       <div>
         <label className="label" htmlFor="notes">Notes</label>

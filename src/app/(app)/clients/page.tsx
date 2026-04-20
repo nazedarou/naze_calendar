@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/permissions";
 import { autoPromoteClients } from "@/lib/auto-promote";
+import { ProposalToggleButton } from "./proposal-toggle-button";
 
 const PAGE_SIZE = 20;
 
@@ -11,8 +12,9 @@ type Props = {
 
 const CLIENT_STATUS_LABEL: Record<string, string> = {
   NEW:                "New",
-  FIRST_APPOINTMENT:  "1st Appt",
-  SECOND_APPOINTMENT: "2nd Appt",
+  FIRST_APPOINTMENT:  "1st Meeting",
+  SECOND_APPOINTMENT: "2nd Meeting",
+  PENDING:            "Pending",
   CLOSED:             "Closed",
 };
 
@@ -20,10 +22,11 @@ const CLIENT_STATUS_STYLE: Record<string, string> = {
   NEW:                "bg-slate-100 text-slate-600",
   FIRST_APPOINTMENT:  "bg-blue-100 text-blue-700",
   SECOND_APPOINTMENT: "bg-amber-100 text-amber-700",
+  PENDING:            "bg-purple-100 text-purple-700",
   CLOSED:             "bg-ink-900 text-white",
 };
 
-const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "CLOSED"] as const;
+const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "PENDING", "CLOSED"] as const;
 type ClientStatus = (typeof VALID_STATUSES)[number];
 
 export default async function ClientsPage({ searchParams }: Props) {
@@ -42,13 +45,14 @@ export default async function ClientsPage({ searchParams }: Props) {
   const scopeFilter = owner ? {} : { assignedToId: user.id };
 
   // Stats scoped to the same visibility as the table
-  const [totalCount, newCount, firstApptCount, secondApptCount, awaitingProposalCount, closedCount] =
+  const [totalCount, newCount, firstApptCount, secondApptCount, pendingCount, awaitingProposalCount, closedCount] =
     await Promise.all([
       prisma.client.count({ where: scopeFilter }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "NEW" } }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "FIRST_APPOINTMENT" } }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "SECOND_APPOINTMENT" } }),
-      prisma.client.count({ where: { ...scopeFilter, clientStatus: "SECOND_APPOINTMENT", proposalSent: false } }),
+      prisma.client.count({ where: { ...scopeFilter, clientStatus: "PENDING" } }),
+      prisma.client.count({ where: { ...scopeFilter, clientStatus: "PENDING", proposalSent: false } }),
       prisma.client.count({ where: { ...scopeFilter, clientStatus: "CLOSED" } }),
     ]);
 
@@ -119,12 +123,13 @@ export default async function ClientsPage({ searchParams }: Props) {
       </div>
 
       {/* ── Stats strip ──────────────────────────────────────── */}
-      <div className="grid grid-cols-3 sm:grid-cols-5 border border-stone-300 bg-white mb-10">
-        <ClientStatCell label="Total" value={totalCount} active={!statusFilter} href={filterLink(null)} />
-        <ClientStatCell label="New" value={newCount} active={statusFilter === "NEW"} href={filterLink("NEW")} border />
-        <ClientStatCell label="1st Appt" value={firstApptCount} active={statusFilter === "FIRST_APPOINTMENT"} href={filterLink("FIRST_APPOINTMENT")} border />
-        <ClientStatCell label="2nd Appt" value={secondApptCount} active={statusFilter === "SECOND_APPOINTMENT"} href={filterLink("SECOND_APPOINTMENT")} border />
-        <ClientStatCell label="Closed" value={closedCount} active={statusFilter === "CLOSED"} href={filterLink("CLOSED")} border />
+      <div className="grid grid-cols-3 sm:grid-cols-6 border border-stone-300 bg-white mb-10">
+        <ClientStatCell label="Total"      value={totalCount}      active={!statusFilter}                          href={filterLink(null)} />
+        <ClientStatCell label="New"        value={newCount}        active={statusFilter === "NEW"}                 href={filterLink("NEW")} border />
+        <ClientStatCell label="1st Mtg"    value={firstApptCount}  active={statusFilter === "FIRST_APPOINTMENT"}   href={filterLink("FIRST_APPOINTMENT")} border />
+        <ClientStatCell label="2nd Mtg"    value={secondApptCount} active={statusFilter === "SECOND_APPOINTMENT"}  href={filterLink("SECOND_APPOINTMENT")} border />
+        <ClientStatCell label="Pending"    value={pendingCount}    active={statusFilter === "PENDING"}             href={filterLink("PENDING")} border />
+        <ClientStatCell label="Closed"     value={closedCount}     active={statusFilter === "CLOSED"}              href={filterLink("CLOSED")} border />
       </div>
 
       {/* ── Awaiting proposal callout ─────────────────────────── */}
@@ -133,10 +138,10 @@ export default async function ClientsPage({ searchParams }: Props) {
           className="flex items-center justify-between px-4 py-3 mb-6 border border-warn bg-amber-50"
         >
           <span className="text-sm font-medium text-amber-800">
-            {awaitingProposalCount} client{awaitingProposalCount !== 1 ? "s" : ""} at 2nd appointment awaiting proposal
+            {awaitingProposalCount} client{awaitingProposalCount !== 1 ? "s" : ""} pending — proposal not yet sent
           </span>
           <Link
-            href={filterLink("SECOND_APPOINTMENT")}
+            href={filterLink("PENDING")}
             className="text-[10px] uppercase text-amber-700 hover:text-amber-900 transition-colors"
             style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}
           >
@@ -230,6 +235,12 @@ export default async function ClientsPage({ searchParams }: Props) {
                   >
                     Project
                   </th>
+                  <th
+                    className="px-4 py-3 text-[9px] uppercase text-stone-400"
+                    style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+                  >
+                    Proposal
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200 text-sm">
@@ -243,14 +254,9 @@ export default async function ClientsPage({ searchParams }: Props) {
                         </Link>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`badge ${CLIENT_STATUS_STYLE[c.clientStatus]}`}>
-                            {CLIENT_STATUS_LABEL[c.clientStatus]}
-                          </span>
-                          {c.proposalSent && (
-                            <span className="badge bg-green-100 text-green-700">Proposal</span>
-                          )}
-                        </div>
+                        <span className={`badge ${CLIENT_STATUS_STYLE[c.clientStatus]}`}>
+                          {CLIENT_STATUS_LABEL[c.clientStatus]}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-stone-500 hidden sm:table-cell">
                         {c.email ?? <span className="text-stone-300">—</span>}
@@ -269,6 +275,9 @@ export default async function ClientsPage({ searchParams }: Props) {
                         ) : (
                           <span className="text-stone-300">—</span>
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <ProposalToggleButton clientId={c.id} sent={c.proposalSent} compact />
                       </td>
                     </tr>
                   );

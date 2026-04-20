@@ -7,7 +7,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireOwner, requireUser } from "@/lib/permissions";
 
-const CLIENT_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "CLOSED"] as const;
+const CLIENT_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT", "PENDING", "CLOSED"] as const;
 
 const clientSchema = z.object({
   name:         z.string().min(1, "Name is required").max(200),
@@ -17,7 +17,6 @@ const clientSchema = z.object({
   notes:        z.string().max(2000).optional(),
   assignedToId: z.string().optional(),
   clientStatus: z.enum(CLIENT_STATUSES).default("NEW"),
-  proposalSent: z.boolean().default(false),
 });
 
 function clean(s: string | undefined | null) {
@@ -34,7 +33,6 @@ function buildPayload(formData: FormData) {
     notes:        formData.get("notes") ?? "",
     assignedToId: formData.get("assignedToId") ?? "",
     clientStatus: formData.get("clientStatus") ?? "NEW",
-    proposalSent: formData.get("proposalSent") === "on",
   };
 }
 
@@ -51,7 +49,6 @@ export async function createClient(formData: FormData) {
       notes:        clean(parsed.notes),
       assignedToId: clean(parsed.assignedToId),
       clientStatus: parsed.clientStatus,
-      proposalSent: parsed.proposalSent,
       createdById:  user.id,
     },
   });
@@ -73,12 +70,25 @@ export async function updateClient(id: string, formData: FormData) {
       notes:        clean(parsed.notes),
       assignedToId: clean(parsed.assignedToId),
       clientStatus: parsed.clientStatus,
-      proposalSent: parsed.proposalSent,
     },
   });
   revalidatePath("/clients");
   revalidatePath(`/clients/${id}`);
   redirect(`/clients/${id}`);
+}
+
+export async function toggleProposalSent(id: string) {
+  await requireUser();
+  const client = await prisma.client.findUniqueOrThrow({
+    where: { id },
+    select: { proposalSent: true },
+  });
+  await prisma.client.update({
+    where: { id },
+    data: { proposalSent: !client.proposalSent },
+  });
+  revalidatePath("/clients");
+  revalidatePath(`/clients/${id}`);
 }
 
 export async function deleteClient(id: string) {

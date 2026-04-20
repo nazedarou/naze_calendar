@@ -5,6 +5,7 @@ import { isOwner, requireUser } from "@/lib/permissions";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import { ClientForm } from "../client-form";
 import { deleteClient, updateClient } from "../actions";
+import { ProposalToggleButton } from "../proposal-toggle-button";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -61,11 +62,16 @@ export default async function ClientDetailPage({ params }: Props) {
               notes:        client.notes,
               assignedToId: client.assignedToId,
               clientStatus: client.clientStatus,
-              proposalSent: client.proposalSent,
             }}
             employees={employees}
             submitLabel="Save changes"
           />
+          <div className="mt-4 border-t pt-4">
+            <p className="text-xs text-stone-400 mb-2" style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
+              PROPOSAL
+            </p>
+            <ProposalToggleButton clientId={client.id} sent={client.proposalSent} />
+          </div>
           {isOwner(user) && (
             <form
               action={deleteClient.bind(null, client.id)}
