@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 /**
  * Runs the full client status pipeline on every page load (idempotent):
  *
- * NEW → FIRST_APPOINTMENT   (manual only — set by staff)
+ * NEW → FIRST_APPOINTMENT              (any event scheduled, past or future)
  * FIRST_APPOINTMENT → SECOND_APPOINTMENT  (1st past event)
  * SECOND_APPOINTMENT → PENDING            (2nd past event)
  * PENDING → CLOSED                        (project/contract assigned)
@@ -24,14 +24,14 @@ export async function autoPromoteClients() {
   });
 
   // 2. PENDING: SECOND_APPOINTMENT clients with 2+ past events
-  const secondToePending = await prisma.client.findMany({
+  const secondToPending = await prisma.client.findMany({
     where: { clientStatus: "SECOND_APPOINTMENT" },
     select: {
       id: true,
       _count: { select: { events: { where: { startAt: { lt: now } } } } },
     },
   });
-  const pendingIds = secondToePending
+  const pendingIds = secondToPending
     .filter((c) => c._count.events >= 2)
     .map((c) => c.id);
   if (pendingIds.length > 0) {
@@ -42,17 +42,20 @@ export async function autoPromoteClients() {
   }
 
   // 3. SECOND_APPOINTMENT: FIRST_APPOINTMENT clients with 1+ past event
-  const firstToSecond = await prisma.client.findMany({
+  await prisma.client.updateMany({
     where: {
       clientStatus: "FIRST_APPOINTMENT",
       events: { some: { startAt: { lt: now } } },
     },
-    select: { id: true },
+    data: { clientStatus: "SECOND_APPOINTMENT" },
   });
-  if (firstToSecond.length > 0) {
-    await prisma.client.updateMany({
-      where: { id: { in: firstToSecond.map((c) => c.id) } },
-      data: { clientStatus: "SECOND_APPOINTMENT" },
-    });
-  }
+
+  // 4. FIRST_APPOINTMENT: NEW clients with any event (past or upcoming)
+  await prisma.client.updateMany({
+    where: {
+      clientStatus: "NEW",
+      events: { some: {} },
+    },
+    data: { clientStatus: "FIRST_APPOINTMENT" },
+  });
 }
