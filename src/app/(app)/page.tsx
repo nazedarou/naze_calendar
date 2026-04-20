@@ -419,7 +419,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="text-right shrink-0 hidden sm:block">
                       <div
-                        className="font-bold text-sm text-warm-800 tabular-nums"
+                        className="font-normal text-sm text-warm-800 tabular-nums"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         {formatMoney(totalPaid)}
