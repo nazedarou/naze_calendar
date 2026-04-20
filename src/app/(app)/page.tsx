@@ -27,6 +27,24 @@ export default async function DashboardPage() {
     ? { startAt: { gte: now, lte: weekEnd } }
     : { startAt: { gte: now, lte: weekEnd }, assignments: { some: { userId: user.id } } };
 
+  // Proposal reminders: SECOND_APPOINTMENT + no proposal sent + 2 past events
+  const proposalCandidates = await prisma.client.findMany({
+    where: {
+      proposalSent: false,
+      clientStatus: "SECOND_APPOINTMENT",
+      ...(owner ? {} : { assignedToId: user.id }),
+    },
+    include: {
+      events: {
+        where: { startAt: { lt: now } },
+        orderBy: { startAt: "asc" },
+        select: { id: true, startAt: true },
+        take: 2,
+      },
+    },
+  });
+  const proposalReminders = proposalCandidates.filter((c) => c.events.length >= 2);
+
   const [
     weekEvents,
     overduePayments,
@@ -141,8 +159,8 @@ export default async function DashboardPage() {
 
       {!owner && <div className="mb-10" />}
 
-      {/* ── This week + Overdue ──────────────────────────────────── */}
-      <div className="grid lg:grid-cols-2 border border-stone-300 bg-white">
+      {/* ── This week + Overdue + Proposal reminders ─────────────── */}
+      <div className="grid lg:grid-cols-3 border border-stone-300 bg-white">
 
         {/* This week */}
         <section className="border-b lg:border-b-0 lg:border-r border-stone-300">
@@ -200,7 +218,7 @@ export default async function DashboardPage() {
         </section>
 
         {/* Overdue */}
-        <section>
+        <section className="border-b lg:border-b-0 lg:border-r border-stone-300">
           <div className="flex items-center justify-between px-5 py-4 border-b border-stone-300">
             <h2
               className="text-[10px] uppercase text-stone-400"
@@ -259,6 +277,67 @@ export default async function DashboardPage() {
                       >
                         {days}d overdue
                       </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        {/* Proposal Reminders */}
+        <section>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-stone-300">
+            <h2
+              className="text-[10px] uppercase text-stone-400"
+              style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.2em" }}
+            >
+              Proposal Reminders
+            </h2>
+            {proposalReminders.length > 0 && (
+              <span
+                className="text-[10px] uppercase text-warn"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {proposalReminders.length} pending
+              </span>
+            )}
+          </div>
+          {proposalReminders.length === 0 ? (
+            <p
+              className="px-5 py-5 text-sm text-stone-400"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              — All clear
+            </p>
+          ) : (
+            <ul className="divide-y divide-stone-200">
+              {proposalReminders.map((c) => {
+                const secondEvent = c.events[1] ?? c.events[0];
+                const days = Math.floor(
+                  (now.getTime() - new Date(secondEvent.startAt).getTime()) / 86_400_000
+                );
+                return (
+                  <li key={c.id} className="px-5 py-3.5 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/clients/${c.id}`}
+                        className="text-sm font-semibold text-ink-900 hover:text-stone-500 transition-colors block truncate"
+                      >
+                        {c.name}
+                      </Link>
+                      <div
+                        className="text-[11px] text-stone-400 mt-0.5"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        2nd appt {format(secondEvent.startAt, "d MMM").toUpperCase()}
+                      </div>
+                    </div>
+                    <div
+                      className="text-[10px] text-warn shrink-0 tabular-nums pt-0.5"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      {days}d ago
                     </div>
                   </li>
                 );
