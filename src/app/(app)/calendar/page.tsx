@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   addDays,
   addMonths,
+  subDays,
   endOfMonth,
   endOfWeek,
   format,
@@ -11,7 +12,7 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const TZ = "Asia/Singapore";
 import { prisma } from "@/lib/db";
@@ -116,7 +117,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
 
   const [events, payments] = await Promise.all([
     prisma.event.findMany({
-      where: { startAt: { gte: gridStart, lte: gridEnd } },
+      where: { startAt: { gte: subDays(gridStart, 1), lte: addDays(gridEnd, 1) } },
       orderBy: { startAt: "asc" },
       include: {
         client: true,
@@ -140,8 +141,8 @@ async function MonthView({ cursor }: { cursor: Date }) {
   const itemsByDay = new Map<string, Item[]>();
   for (const day of days) {
     const key = day.toISOString();
-    const dayEvents = events.filter((e) => isSameDay(e.startAt, day));
-    const dayPayments = payments.filter((p) => p.dueDate && isSameDay(p.dueDate, day));
+    const dayEvents = events.filter((e) => isSameDay(toZonedTime(e.startAt, TZ), toZonedTime(day, TZ)));
+    const dayPayments = payments.filter((p) => p.dueDate && isSameDay(toZonedTime(p.dueDate, TZ), toZonedTime(day, TZ)));
 
     const items: Item[] = [
       ...dayEvents.map<Item>((e) => {
@@ -243,7 +244,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
         ) : (
           agendaDays.map((day) => {
             const items = itemsByDay.get(day.toISOString()) ?? [];
-            const isToday = isSameDay(day, new Date());
+            const isToday = isSameDay(toZonedTime(day, TZ), toZonedTime(new Date(), TZ));
             return (
               <div key={day.toISOString()} className="px-4 py-3">
                 <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${isToday ? "text-brand-600" : "text-warm-500"}`}>
@@ -270,7 +271,7 @@ async function MonthView({ cursor }: { cursor: Date }) {
           {days.map((day) => {
             const items = itemsByDay.get(day.toISOString()) ?? [];
             const inMonth = isSameMonth(day, cursor);
-            const isToday = isSameDay(day, new Date());
+            const isToday = isSameDay(toZonedTime(day, TZ), toZonedTime(new Date(), TZ));
             const MAX = 4;
             const shown = items.slice(0, MAX);
             const extra = items.length - shown.length;
