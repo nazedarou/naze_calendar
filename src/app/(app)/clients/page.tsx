@@ -25,7 +25,8 @@ const VALID_STATUSES = ["NEW", "FIRST_APPOINTMENT", "SECOND_APPOINTMENT"] as con
 type ClientStatus = (typeof VALID_STATUSES)[number];
 
 export default async function ClientsPage({ searchParams }: Props) {
-  await requireUser();
+  const user = await requireUser();
+  const owner = user.role === "OWNER";
   await autoPromoteClients();
   const { q, page: pageParam, status: statusParam } = await searchParams;
   const query = q?.trim() ?? "";
@@ -35,18 +36,22 @@ export default async function ClientsPage({ searchParams }: Props) {
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const skip = (page - 1) * PAGE_SIZE;
 
-  // Stats (always full counts, ignore search/filter)
+  // Scope all queries to assigned clients for employees
+  const scopeFilter = owner ? {} : { assignedToId: user.id };
+
+  // Stats scoped to the same visibility as the table
   const [totalCount, newCount, firstApptCount, secondApptCount, awaitingProposalCount, engagedCount] =
     await Promise.all([
-      prisma.client.count(),
-      prisma.client.count({ where: { clientStatus: "NEW" } }),
-      prisma.client.count({ where: { clientStatus: "FIRST_APPOINTMENT" } }),
-      prisma.client.count({ where: { clientStatus: "SECOND_APPOINTMENT" } }),
-      prisma.client.count({ where: { clientStatus: "SECOND_APPOINTMENT", proposalSent: false } }),
-      prisma.client.count({ where: { contracts: { some: {} } } }),
+      prisma.client.count({ where: scopeFilter }),
+      prisma.client.count({ where: { ...scopeFilter, clientStatus: "NEW" } }),
+      prisma.client.count({ where: { ...scopeFilter, clientStatus: "FIRST_APPOINTMENT" } }),
+      prisma.client.count({ where: { ...scopeFilter, clientStatus: "SECOND_APPOINTMENT" } }),
+      prisma.client.count({ where: { ...scopeFilter, clientStatus: "SECOND_APPOINTMENT", proposalSent: false } }),
+      prisma.client.count({ where: { ...scopeFilter, contracts: { some: {} } } }),
     ]);
 
   const where = {
+    ...scopeFilter,
     ...(statusFilter ? { clientStatus: statusFilter } : {}),
     ...(query
       ? {
