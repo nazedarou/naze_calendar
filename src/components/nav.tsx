@@ -13,8 +13,19 @@ export function Nav({ user }: { user: SessionUser }) {
     <header className="border-b border-warm-100 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-lg font-semibold text-brand-700">
-            Fonk Dashboard
+          <Link href="/" className="flex items-baseline gap-0.5">
+            <span
+              className="text-2xl leading-none font-light italic"
+              style={{ fontFamily: "var(--font-display)", color: "#C24040" }}
+            >
+              F
+            </span>
+            <span
+              className="text-base leading-none font-light"
+              style={{ fontFamily: "var(--font-display)", color: "#C24040" }}
+            >
+              .
+            </span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
             {links.map((l) => (

@@ -6,14 +6,22 @@ import { SidebarNav } from "./sidebar-nav";
 export function Sidebar({ user }: { user: SessionUser }) {
   return (
     <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-white border-r border-warm-200">
-      {/* Wordmark */}
+      {/* Logo */}
       <div className="px-6 pt-7 pb-5 border-b border-warm-100">
         <Link href="/" className="block group">
-          <div
-            className="text-3xl font-semibold leading-none text-warm-900 tracking-wide"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Fonk
+          <div className="flex items-baseline gap-0.5">
+            <span
+              className="text-[42px] leading-none font-light italic"
+              style={{ fontFamily: "var(--font-display)", color: "#C24040" }}
+            >
+              F
+            </span>
+            <span
+              className="text-[28px] leading-none font-light"
+              style={{ fontFamily: "var(--font-display)", color: "#C24040", marginBottom: "6px" }}
+            >
+              .
+            </span>
           </div>
           <div className="mt-1 text-[10px] text-warm-400 tracking-widest uppercase font-medium">
             Interior Studio
