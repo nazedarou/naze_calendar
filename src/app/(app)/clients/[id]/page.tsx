@@ -42,7 +42,10 @@ export default async function ClientDetailPage({ params }: Props) {
         <Link href="/clients" className="text-sm text-brand-600 hover:underline">
           ← Back to clients
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold">{client.name}</h1>
+        <div className="flex items-start justify-between gap-4 mt-2">
+          <h1 className="text-2xl font-semibold">{client.name}</h1>
+          <Link href={`/calendar/new?clientId=${client.id}`} className="btn-secondary shrink-0">+ Add event</Link>
+        </div>
         <p className="text-sm text-warm-500">
           Added {formatDate(client.createdAt)}
           {client.assignedTo && <> · Assigned to <span className="font-medium">{client.assignedTo.name}</span></>}
