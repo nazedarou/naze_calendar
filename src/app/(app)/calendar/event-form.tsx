@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { toDateTimeInputValue } from "@/lib/format";
 
 type Initial = {
@@ -18,7 +21,6 @@ export function EventForm({
   employees,
   submitLabel,
   defaultClientId,
-  defaultContractId,
   currentUserId,
   isEmployee = false,
 }: {
@@ -36,6 +38,12 @@ export function EventForm({
   const now = new Date();
   const assigned = new Set(initial?.assignedUserIds ?? []);
   if (isEmployee && currentUserId) assigned.add(currentUserId);
+
+  const [selectedClientId, setSelectedClientId] = useState(
+    initial?.clientId ?? defaultClientId ?? ""
+  );
+
+  const autoContract = contracts.find((c) => c.clientId === selectedClientId) ?? null;
 
   return (
     <form action={action} className="space-y-5">
@@ -69,25 +77,27 @@ export function EventForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="clientId">Client</label>
-          <select id="clientId" name="clientId" defaultValue={initial?.clientId ?? defaultClientId ?? ""} className="input">
+          <select
+            id="clientId"
+            name="clientId"
+            value={selectedClientId}
+            onChange={(e) => setSelectedClientId(e.target.value)}
+            className="input"
+          >
             <option value="">—</option>
             {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="label" htmlFor="contractId">Contract</label>
-          <select id="contractId" name="contractId" defaultValue={initial?.contractId ?? defaultContractId ?? ""} className="input">
-            <option value="">—</option>
-            {contracts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
+          <label className="label">Project</label>
+          <div className="input bg-warm-50 text-warm-500 cursor-default select-none">
+            {autoContract ? autoContract.title : <span className="text-warm-300">—</span>}
+          </div>
+          {autoContract && (
+            <input type="hidden" name="contractId" value={autoContract.id} />
+          )}
         </div>
       </div>
 
