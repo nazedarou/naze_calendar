@@ -1,9 +1,12 @@
 import Link from "next/link";
-import { addDays, format } from "date-fns";
+import { addDays } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/permissions";
 import { formatDate, formatMoney } from "@/lib/format";
 import { autoPromoteClients } from "@/lib/auto-promote";
+
+const TZ = "Asia/Singapore";
 
 const CONTRACT_STATUS_STYLE: Record<string, string> = {
   DRAFT:     "bg-warm-50 text-warm-600",
@@ -187,7 +190,7 @@ export default async function DashboardPage() {
                     className="shrink-0 text-[10px] uppercase text-warm-500 w-12 pt-0.5 tabular-nums"
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
-                    {format(e.startAt, "MMM d").toUpperCase()}
+                    {formatInTimeZone(e.startAt, TZ, "MMM d").toUpperCase()}
                   </div>
                   <div className="min-w-0">
                     <Link
@@ -200,7 +203,7 @@ export default async function DashboardPage() {
                       className="text-[11px] text-warm-500 mt-0.5"
                       style={{ fontFamily: "var(--font-mono)" }}
                     >
-                      {format(e.startAt, "HH:mm")}
+                      {formatInTimeZone(e.startAt, TZ, "HH:mm")}
                       {e.client ? ` · ${e.client.name}` : ""}
                     </div>
                   </div>
@@ -323,7 +326,7 @@ export default async function DashboardPage() {
                         className="text-[11px] text-warm-500 mt-0.5"
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
-                        2nd meeting {format(secondEvent.startAt, "d MMM").toUpperCase()}
+                        2nd meeting {formatInTimeZone(secondEvent.startAt, TZ, "d MMM").toUpperCase()}
                       </div>
                     </div>
                     <div
